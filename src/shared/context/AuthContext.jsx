@@ -15,6 +15,7 @@ import { setAuthToken } from '../../services/api/httpClient.js';
 const STORAGE_KEY = 'rotaractd4465:auth';
 const initialState = {
   token: null,
+  refreshToken: null,
   user: null,
   status: 'idle',
   error: null,
@@ -24,7 +25,7 @@ const isBrowser = typeof window !== 'undefined';
 
 const normaliseAuthPayload = (payload) => {
   if (!payload) {
-    return { token: null, user: null };
+    return { token: null, refreshToken: null, user: null };
   }
 
   const source = payload.data ?? payload;
@@ -36,14 +37,36 @@ const normaliseAuthPayload = (payload) => {
     source?.authorization ??
     null;
 
+  const refreshToken =
+    source?.refreshToken ??
+    source?.refresh_token ??
+    source?.refresh ??
+    null;
+
+  const fallbackUser = (() => {
+    const details = {};
+
+    if (source?.correo || source?.email) {
+      details.correo = source?.correo ?? source?.email;
+      details.email = source?.correo ?? source?.email;
+    }
+
+    if (source?.rol || source?.role) {
+      details.rol = source?.rol ?? source?.role;
+      details.role = source?.rol ?? source?.role;
+    }
+
+    return Object.keys(details).length > 0 ? details : null;
+  })();
+
   const user =
     source?.user ??
     source?.profile ??
     source?.account ??
     source?.data ??
-    null;
+    fallbackUser;
 
-  return { token, user };
+  return { token, refreshToken, user };
 };
 
 const readPersistedAuth = () => {
@@ -64,6 +87,7 @@ const readPersistedAuth = () => {
       setAuthToken(parsed.token);
       return {
         token: parsed.token,
+        refreshToken: parsed.refreshToken ?? null,
         user: parsed.user ?? null,
         status: 'authenticated',
         error: null,
@@ -120,7 +144,7 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const response = await loginRequest(credentials);
-        const { token, user: initialUser } = normaliseAuthPayload(response);
+        const { token, refreshToken, user: initialUser } = normaliseAuthPayload(response);
 
         if (!token) {
           throw new Error(
@@ -143,6 +167,7 @@ export const AuthProvider = ({ children }) => {
 
         const payload = {
           token,
+          refreshToken,
           user: resolvedUser,
         };
 
@@ -150,6 +175,7 @@ export const AuthProvider = ({ children }) => {
 
         setAuthState({
           token,
+          refreshToken,
           user: resolvedUser,
           status: 'authenticated',
           error: null,
@@ -163,6 +189,7 @@ export const AuthProvider = ({ children }) => {
 
         setAuthState({
           token: null,
+          refreshToken: null,
           user: null,
           status: 'error',
           error: message,
@@ -198,7 +225,7 @@ export const AuthProvider = ({ children }) => {
         if (options?.autoLogin !== false) {
           try {
             await login(
-              { email: payload.email, password: payload.password },
+              { correo: payload.email, contrasena: payload.password },
               { remember: true },
             );
             autoLoginCompleted = true;

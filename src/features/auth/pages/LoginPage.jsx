@@ -13,8 +13,8 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login, status, error, clearError, isAuthenticated } = useAuth();
   const [formValues, setFormValues] = useState({
-    email: '',
-    password: '',
+    correo: '',
+    contrasena: '',
     remember: true,
   });
   const [feedback, setFeedback] = useState(null);
@@ -55,8 +55,8 @@ const LoginPage = () => {
     try {
       await login(
         {
-          email: formValues.email.trim(),
-          password: formValues.password,
+          correo: formValues.correo.trim(),
+          contrasena: formValues.contrasena,
         },
         { remember: formValues.remember },
       );
@@ -94,20 +94,20 @@ const LoginPage = () => {
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <TextField
           label="Correo institucional"
-          name="email"
+          name="correo"
           type="email"
           autoComplete="email"
           placeholder="tu.nombre@rotaract4465.org"
-          value={formValues.email}
+          value={formValues.correo}
           onChange={handleChange}
           required
         />
 
         <PasswordField
           label="Contraseña"
-          name="password"
+          name="contrasena"
           autoComplete="current-password"
-          value={formValues.password}
+          value={formValues.contrasena}
           onChange={handleChange}
           required
         />
