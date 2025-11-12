@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import PublicLayout from '../../../shared/layouts/PublicLayout.jsx';
-import { fetchHomeSnapshot } from '../services/homeService.js';
+import { fetchHomeSnapshot, normaliseClub, normaliseConvocatoria } from '../services/homeService.js';
 import '../../../styles/home.css';
 
 const FOCUS_AREAS = [
@@ -36,7 +36,7 @@ const FOCUS_AREAS = [
   },
 ];
 
-const FALLBACK_EVENTS = [
+const FALLBACK_CALLS = [
   {
     id: 'evento-1',
     name: 'Cumbre Distrital de Innovación Social',
@@ -80,10 +80,28 @@ const DEFAULT_METRICS = {
   projects: 150,
 };
 
+const formatDateLabel = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return parsed.toLocaleDateString('es-PE', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
 const HomePage = () => {
   const [navbarScrolled, setNavbarScrolled] = useState(false);
   const [metrics, setMetrics] = useState(DEFAULT_METRICS);
-  const [events, setEvents] = useState([]);
+  const [convocatorias, setConvocatorias] = useState([]);
   const [clubs, setClubs] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -102,12 +120,13 @@ const HomePage = () => {
       try {
         const snapshot = await fetchHomeSnapshot();
         setClubs(snapshot.clubs);
-        setEvents(snapshot.events);
+        setConvocatorias(snapshot.convocatorias);
 
         setMetrics((previous) => ({
           members: snapshot.metrics?.members ?? previous.members,
           clubs: snapshot.metrics?.clubs ?? snapshot.clubs?.length ?? previous.clubs,
-          projects: snapshot.metrics?.projects ?? snapshot.events?.length ?? previous.projects,
+          projects:
+            snapshot.metrics?.projects ?? snapshot.convocatorias?.length ?? previous.projects,
         }));
 
         if (snapshot.error) {
@@ -126,31 +145,29 @@ const HomePage = () => {
     loadSnapshot();
   }, []);
 
-  const highlightedEvents = useMemo(() => {
-    if (events.length === 0) {
-      return FALLBACK_EVENTS;
+  const highlightedConvocatorias = useMemo(() => {
+    if (convocatorias.length === 0) {
+      return FALLBACK_CALLS;
     }
 
-    return events.slice(0, 3).map((event) => ({
-      id: event.id ?? event.uuid ?? event.slug ?? event.name,
-      name: event.name ?? event.title,
-      location: event.location ?? event.city ?? 'Por confirmar',
-      date: event.date ?? event.startDate ?? event.fecha ?? 'Próximamente',
-      summary: event.summary ?? event.description ?? 'Evento distrital de servicio y liderazgo juvenil.',
-    }));
-  }, [events]);
+    return convocatorias.slice(0, 3).map((item) => {
+      const convocatoria = normaliseConvocatoria(item);
+      return {
+        ...convocatoria,
+        date: formatDateLabel(convocatoria.date) ?? convocatoria.date,
+      };
+    });
+  }, [convocatorias]);
 
   const featuredClubs = useMemo(() => {
     if (clubs.length === 0) {
       return FALLBACK_CLUBS;
     }
 
-    return clubs.slice(0, 3).map((club) => ({
-      id: club.id ?? club.uuid ?? club.slug ?? club.name,
-      name: club.name,
-      city: club.city ?? club.district ?? 'Perú',
-      speciality: club.focus ?? club.speciality ?? 'Servicio integral',
-    }));
+    return clubs.slice(0, 3).map((club) => {
+      const normalised = normaliseClub(club);
+      return normalised;
+    });
   }, [clubs]);
 
   return (
@@ -240,19 +257,26 @@ const HomePage = () => {
         </div>
 
         <div className="events-grid">
-          {highlightedEvents.map((event) => (
-            <article key={event.id} className="event-card">
-              <div className="event-card__meta">
-                <span className="event-card__date">{event.date}</span>
-                <span className="event-card__location">{event.location}</span>
-              </div>
-              <h3 className="event-card__title">{event.name}</h3>
-              <p className="event-card__summary">{event.summary}</p>
-              <a href="/#convocatorias" className="event-card__link">
-                Ver detalles
-              </a>
-            </article>
-          ))}
+          {highlightedConvocatorias.map((convocatoria) => {
+            const isExternalLink = convocatoria.url?.startsWith('http');
+            return (
+              <article key={convocatoria.id} className="event-card">
+                <div className="event-card__meta">
+                  <span className="event-card__date">{convocatoria.date}</span>
+                  <span className="event-card__location">{convocatoria.location}</span>
+                </div>
+                <h3 className="event-card__title">{convocatoria.name}</h3>
+                <p className="event-card__summary">{convocatoria.summary}</p>
+                <a
+                  href={convocatoria.url ?? '/#convocatorias'}
+                  className="event-card__link"
+                  {...(isExternalLink ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
+                >
+                  {convocatoria.url ? 'Postular ahora' : 'Ver detalles'}
+                </a>
+              </article>
+            );
+          })}
         </div>
       </section>
 

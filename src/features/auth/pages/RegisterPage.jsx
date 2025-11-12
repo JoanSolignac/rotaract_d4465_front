@@ -54,13 +54,21 @@ const RegisterPage = () => {
     setFeedback(null);
 
     try {
-      await register({
+      const result = await register({
         fullName: formValues.fullName.trim(),
         email: formValues.email.trim(),
         password: formValues.password,
         phone: formValues.phone.trim(),
         club: formValues.club.trim(),
       });
+
+      if (result?.autoLogin) {
+        setFeedback({
+          type: 'success',
+          message: 'Cuenta creada y sesión iniciada. Redirigiendo a tu panel…',
+        });
+        return;
+      }
 
       setFeedback({
         type: 'success',

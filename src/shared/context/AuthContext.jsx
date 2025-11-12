@@ -183,35 +183,55 @@ export const AuthProvider = ({ children }) => {
     setAuthState(initialState);
   }, [clearStoredAuth]);
 
-  const register = useCallback(async (payload) => {
-    setAuthState((previous) => ({
-      ...previous,
-      status: 'pending',
-      error: null,
-    }));
-
-    try {
-      const response = await registerRequest(payload);
+  const register = useCallback(
+    async (payload, options = { autoLogin: true }) => {
       setAuthState((previous) => ({
         ...previous,
-        status: 'idle',
+        status: 'pending',
         error: null,
       }));
-      return response;
-    } catch (error) {
-      const message =
-        error?.message ??
-        'No pudimos crear tu cuenta en este momento. Revisa la información ingresada e inténtalo nuevamente.';
 
-      setAuthState((previous) => ({
-        ...previous,
-        status: 'error',
-        error: message,
-      }));
+      try {
+        const response = await registerRequest(payload);
+        let autoLoginCompleted = false;
 
-      throw new Error(message);
-    }
-  }, []);
+        if (options?.autoLogin !== false) {
+          try {
+            await login(
+              { email: payload.email, password: payload.password },
+              { remember: true },
+            );
+            autoLoginCompleted = true;
+          } catch (autoLoginError) {
+            console.warn('No fue posible iniciar sesión automáticamente después del registro.', autoLoginError);
+          }
+        }
+
+        if (!autoLoginCompleted) {
+          setAuthState((previous) => ({
+            ...previous,
+            status: 'idle',
+            error: null,
+          }));
+        }
+
+        return { response, autoLogin: autoLoginCompleted };
+      } catch (error) {
+        const message =
+          error?.message ??
+          'No pudimos crear tu cuenta en este momento. Revisa la información ingresada e inténtalo nuevamente.';
+
+        setAuthState((previous) => ({
+          ...previous,
+          status: 'error',
+          error: message,
+        }));
+
+        throw new Error(message);
+      }
+    },
+    [login],
+  );
 
   const value = useMemo(
     () => ({
