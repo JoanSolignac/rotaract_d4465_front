@@ -8,7 +8,9 @@ export const API_ENDPOINTS = {
     profile: '/auth/me',
   },
   clubs: '/clubs',
+  clubsPublic: '/clubs/public/',
   convocatorias: '/convocatorias',
+  convocatoriasPublic: '/convocatorias/public/',
   metrics: '/metrics/district',
 };
 

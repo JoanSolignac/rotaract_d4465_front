@@ -45,18 +45,6 @@ const PrimaryNavbar = ({ variant = 'default', isSolid = false }) => {
         )}
 
         <div className="primary-nav__actions">
-          {isAuthVariant ? (
-            <Link to="/" className="primary-nav__action primary-nav__action--ghost">
-              Volver al inicio
-            </Link>
-          ) : (
-            <a
-              href="/#club-finder"
-              className="primary-nav__action primary-nav__action--ghost"
-            >
-              Encuentra tu club
-            </a>
-          )}
 
           <Link
             to="/signup"

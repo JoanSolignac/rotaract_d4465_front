@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import PublicLayout from '../../../shared/layouts/PublicLayout.jsx';
 import { fetchHomeSnapshot, normaliseClub, normaliseConvocatoria } from '../services/homeService.js';
 import '../../../styles/home.css';
+import bgHome from '../../../assets/backgrounds/rotaract_background.jpg';
 
 const FOCUS_AREAS = [
   {
@@ -172,33 +174,36 @@ const HomePage = () => {
 
   return (
     <PublicLayout navbarScrolled={navbarScrolled}>
-      <section className="landing-hero">
-        <div className="landing-hero__media" aria-hidden="true">
-          <img
-            src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2400&auto=format&fit=crop"
-            alt="Jóvenes voluntarios de Rotaract Perú"
-            loading="lazy"
-          />
-          <div className="landing-hero__overlay" />
-        </div>
-
-        <div className="landing-hero__content">
-          <span className="landing-hero__badge">Distrito 4465 · Perú</span>
-          <h1 className="landing-hero__title">Liderazgo joven al servicio de nuestras comunidades</h1>
-          <p className="landing-hero__subtitle">
-            Somos una red de clubes Rotaract que potencia el talento juvenil para crear proyectos de impacto sostenible en
-            todo el país.
-          </p>
-          <div className="landing-hero__cta">
-            <a href="/#proyectos" className="landing-hero__button landing-hero__button--primary">
-              Explorar proyectos
-            </a>
-            <a href="/#club-finder" className="landing-hero__button landing-hero__button--ghost">
-              Unirme a un club
-            </a>
+      <div
+        className="home-background"
+        style={{
+          ['--home-bg-url']: `url(${bgHome})`,
+          ['--home-bg-position']: '30% 35%',
+        }}
+      >
+        <section className="landing-hero">
+          <div className="landing-hero__media" aria-hidden="true">
+            {/* background applied via CSS custom property on .home-background; overlay kept for contrast */}
+            <div className="landing-hero__overlay" />
           </div>
-        </div>
-      </section>
+
+          <div className="landing-hero__content">
+            <span className="landing-hero__badge">Distrito 4465 · Perú</span>
+            <h1 className="landing-hero__title">Liderazgo joven al servicio de nuestras comunidades</h1>
+            <p className="landing-hero__subtitle">
+              Somos una red de clubes Rotaract que potencia el talento juvenil para crear proyectos de impacto sostenible en
+              todo el país.
+            </p>
+            <div className="landing-hero__cta">
+              <a href="/#proyectos" className="landing-hero__button landing-hero__button--primary">
+                Explorar proyectos
+              </a>
+              <a href="/#club-finder" className="landing-hero__button landing-hero__button--ghost">
+                Unirme a un club
+              </a>
+            </div>
+          </div>
+        </section>
 
       <section className="landing-section landing-section--metrics" id="quienes-somos">
         <div className="landing-section__header">
@@ -258,7 +263,8 @@ const HomePage = () => {
 
         <div className="events-grid">
           {highlightedConvocatorias.map((convocatoria) => {
-            const isExternalLink = convocatoria.url?.startsWith('http');
+            const externalUrl = convocatoria.url;
+            const isExternalLink = typeof externalUrl === 'string' && externalUrl.startsWith('http');
             return (
               <article key={convocatoria.id} className="event-card">
                 <div className="event-card__meta">
@@ -267,13 +273,20 @@ const HomePage = () => {
                 </div>
                 <h3 className="event-card__title">{convocatoria.name}</h3>
                 <p className="event-card__summary">{convocatoria.summary}</p>
-                <a
-                  href={convocatoria.url ?? '/#convocatorias'}
-                  className="event-card__link"
-                  {...(isExternalLink ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
-                >
-                  {convocatoria.url ? 'Postular ahora' : 'Ver detalles'}
-                </a>
+                {isExternalLink ? (
+                  <a
+                    href={externalUrl}
+                    className="event-card__link"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    Postular ahora
+                  </a>
+                ) : (
+                  <Link to={`/convocatorias/${convocatoria.id}`} className="event-card__link">
+                    Ver detalles
+                  </Link>
+                )}
               </article>
             );
           })}
@@ -296,9 +309,9 @@ const HomePage = () => {
                 <span className="club-card__city">{club.city}</span>
               </header>
               <p className="club-card__focus">{club.speciality}</p>
-              <a href="/#contacto" className="club-card__link">
-                Contactar club
-              </a>
+              <Link to={`/clubes/${club.id}`} className="club-card__link">
+                Ver club
+              </Link>
             </article>
           ))}
         </div>
@@ -341,6 +354,7 @@ const HomePage = () => {
           </a>
         </div>
       </section>
+      </div>
     </PublicLayout>
   );
 };

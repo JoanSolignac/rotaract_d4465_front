@@ -1,5 +1,4 @@
 import {
-  createContext,
   useCallback,
   useEffect,
   useMemo,
@@ -11,6 +10,7 @@ import {
   register as registerRequest,
 } from '../../features/auth/services/authService.js';
 import { setAuthToken } from '../../services/api/httpClient.js';
+import { AuthContext } from './AuthContextCore.jsx';
 
 const STORAGE_KEY = 'rotaractd4465:auth';
 const initialState = {
@@ -99,8 +99,6 @@ const readPersistedAuth = () => {
 
   return initialState;
 };
-
-export const AuthContext = createContext(undefined);
 
 export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState(() => readPersistedAuth());
