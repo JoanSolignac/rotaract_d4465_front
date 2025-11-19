@@ -1,1 +1,1 @@
-export { Presidente as PresidenteDashboard } from "../dashboard/Presidente";
+export { PresidenteConvocatorias as PresidenteDashboard } from "../dashboard/PresidenteConvocatorias";

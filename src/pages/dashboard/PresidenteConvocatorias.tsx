@@ -42,7 +42,7 @@ const createDefaultConvocatoriaValues = (): CreateConvocatoriaPayload => {
   };
 };
 
-export const Presidente = () => {
+export const PresidenteConvocatorias = () => {
   const { user } = useAuth();
   const name = user?.nombre ?? user?.correo ?? "Presidente";
 

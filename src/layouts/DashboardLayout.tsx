@@ -13,10 +13,8 @@ const navigation: Record<UserRole, NavItem[]> = {
   INTERESADO: [{ label: "Convocatorias", path: roleRouteMap.INTERESADO }],
   SOCIO: [{ label: "Proyectos", path: roleRouteMap.SOCIO }],
   "PRESIDENTE DEL CLUB": [
-    { label: "Convocatorias", path: `${roleRouteMap["PRESIDENTE DEL CLUB"]}#convocatorias` },
-    { label: "Proyectos", path: `${roleRouteMap["PRESIDENTE DEL CLUB"]}#proyectos` },
-    { label: "Miembros", path: `${roleRouteMap["PRESIDENTE DEL CLUB"]}#miembros` },
-    { label: "Mi Club", path: `${roleRouteMap["PRESIDENTE DEL CLUB"]}#mi-club` },
+    { label: "Convocatorias", path: "/dashboard/presidente/convocatorias" },
+    { label: "Proyectos", path: "/dashboard/presidente/proyectos" },
   ],
   "REPRESENTANTE DISTRITAL": [
     { label: "Clubes", path: roleRouteMap["REPRESENTANTE DISTRITAL"] },

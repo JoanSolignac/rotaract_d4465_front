@@ -15,6 +15,8 @@ export interface Convocatoria {
   estado: string;
 }
 
+export type Proyecto = Convocatoria;
+
 export interface ConvocatoriaInscripcion {
   id: number;
   usuarioId: number;
@@ -148,6 +150,13 @@ export const fetchPublicConvocatorias = (params?: FetchPaginatedParams) =>
 
 export const fetchClubConvocatorias = (params?: FetchPaginatedParams) =>
   requestConvocatorias("/convocatorias", params);
+
+export const fetchClubProjects = async (params?: FetchPaginatedParams) => {
+  const response = await api.get<RawPaginated<Proyecto> | Proyecto[]>("/proyectos", {
+    params,
+  });
+  return buildPaginatedResult<Proyecto>(response.data, params);
+};
 
 export const fetchConvocatoriaInscripciones = async (
   convocatoriaId: number,

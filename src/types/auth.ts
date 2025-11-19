@@ -41,6 +41,6 @@ export const USER_ROLES: UserRole[] = [
 export const roleRouteMap: Record<UserRole, string> = {
   INTERESADO: "/dashboard/interesado",
   SOCIO: "/dashboard/socio",
-  "PRESIDENTE DEL CLUB": "/dashboard/presidente",
+  "PRESIDENTE DEL CLUB": "/dashboard/presidente/convocatorias",
   "REPRESENTANTE DISTRITAL": "/dashboard/representante",
 };

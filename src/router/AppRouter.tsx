@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { Login } from "../pages/auth/Login";
 import { Register } from "../pages/auth/Register";
 import { ProtectedRoute } from "../components/shared/ProtectedRoute";
@@ -6,7 +6,8 @@ import { RoleGate } from "../components/shared/RoleGate";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { InteresadoDashboard } from "../pages/dashboards/InteresadoDashboard";
 import { SocioDashboard } from "../pages/dashboards/SocioDashboard";
-import { PresidenteDashboard } from "../pages/dashboards/PresidenteDashboard";
+import { PresidenteConvocatorias } from "../pages/dashboard/PresidenteConvocatorias";
+import { PresidenteProyectos } from "../pages/dashboard/PresidenteProyectos";
 import { RepresentanteDashboard } from "../pages/dashboards/RepresentanteDashboard";
 import { useAuth } from "../hooks/useAuth";
 import { roleRouteMap } from "../types/auth";
@@ -52,10 +53,14 @@ export const AppRouter = () => (
           path="presidente"
           element={
             <RoleGate roles={["PRESIDENTE DEL CLUB"]}>
-              <PresidenteDashboard />
+              <Outlet />
             </RoleGate>
           }
-        />
+        >
+          <Route index element={<Navigate to="convocatorias" replace />} />
+          <Route path="convocatorias" element={<PresidenteConvocatorias />} />
+          <Route path="proyectos" element={<PresidenteProyectos />} />
+        </Route>
         <Route
           path="representante"
           element={
