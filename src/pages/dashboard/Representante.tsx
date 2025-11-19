@@ -42,7 +42,10 @@ export const Representante = () => {
               Un vistazo rápido al tamaño y ubicación de cada club.
             </p>
           </div>
-          <Button color="light" className="border border-primary bg-primary px-5 text-white hover:bg-primary-dark">
+          <Button
+            color="light"
+            className="bg-primary px-5 text-white hover:!bg-primary-dark focus:!ring-primary/40"
+          >
             Agregar club
           </Button>
         </header>

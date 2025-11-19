@@ -150,7 +150,7 @@ export const Interesado = () => {
                       <Button
                         color="light"
                         size="xs"
-                        className="border border-primary bg-primary text-white hover:bg-primary-dark disabled:cursor-not-allowed disabled:border-border-subtle disabled:bg-border-subtle disabled:text-text-secondary"
+                        className="bg-primary text-white hover:!bg-primary-dark focus:!ring-primary/40 disabled:cursor-not-allowed disabled:bg-border-subtle disabled:text-text-secondary"
                         disabled={applyingId === convocatoria.id}
                         onClick={async () => {
                           setApplyingId(convocatoria.id);

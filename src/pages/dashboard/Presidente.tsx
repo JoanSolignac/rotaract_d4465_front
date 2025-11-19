@@ -26,6 +26,8 @@ import {
   type ConvocatoriaInscripcion,
 } from "../../api/convocatorias";
 
+const ACCEPTED_STATES = new Set(["APROBADO", "APROBADA", "ACEPTADO", "ACEPTADA"]);
+
 const createDefaultConvocatoriaValues = (): CreateConvocatoriaPayload => {
   const today = new Date().toISOString().substring(0, 10);
   return {
@@ -65,6 +67,10 @@ export const Presidente = () => {
   const [inscripcionesLoading, setInscripcionesLoading] = useState(false);
   const [inscripcionesError, setInscripcionesError] = useState<string | null>(null);
   const [inscripcionActionId, setInscripcionActionId] = useState<number | null>(null);
+  const [inscripcionSearch, setInscripcionSearch] = useState("");
+  const [inscripcionStatusFilter, setInscripcionStatusFilter] = useState<
+    "TODAS" | "PENDIENTE" | "ACEPTADA"
+  >("TODAS");
 
   const {
     register,
@@ -299,6 +305,22 @@ export const Presidente = () => {
     loadInscripciones();
   }, [loadInscripciones]);
 
+  const filteredInscripciones = useMemo(() => {
+    const search = inscripcionSearch.trim().toLowerCase();
+    return inscripciones.filter((item) => {
+      const matchesSearch =
+        !search ||
+        item.usuarioNombre.toLowerCase().includes(search) ||
+        item.usuarioCorreo.toLowerCase().includes(search);
+      const normalizedStatus = (item.estado ?? "").toUpperCase();
+      const matchesStatus =
+        inscripcionStatusFilter === "TODAS" ||
+        (inscripcionStatusFilter === "PENDIENTE" && normalizedStatus === "PENDIENTE") ||
+        (inscripcionStatusFilter === "ACEPTADA" && ACCEPTED_STATES.has(normalizedStatus));
+      return matchesSearch && matchesStatus;
+    });
+  }, [inscripciones, inscripcionSearch, inscripcionStatusFilter]);
+
   return (
     <div className="space-y-6">
       <WelcomePanel
@@ -340,7 +362,7 @@ export const Presidente = () => {
             </Button>
             <Button
               color="light"
-              className="border border-primary bg-primary px-5 text-white hover:bg-primary-dark"
+              className="bg-primary px-5 text-white hover:!bg-primary-dark focus:!ring-primary/40"
               onClick={openCreateModal}
             >
               Crear convocatoria
@@ -405,14 +427,15 @@ export const Presidente = () => {
                         <div className="flex flex-wrap gap-2">
                           <Button
                             color="light"
-                            className="rounded-base border border-primary px-3 py-1 text-xs font-semibold text-primary hover:bg-primary hover:text-white"
+                            className="rounded-base bg-primary px-3 py-1 text-xs font-semibold text-white transition hover:!bg-primary-dark focus:!ring-primary/40"
                             onClick={() => openInscripcionesModal(convocatoria)}
                           >
                             Ver inscripciones
                           </Button>
                           <Button
                             color="light"
-                            className="rounded-base border border-secondary px-3 py-1 text-xs font-semibold text-secondary hover:bg-secondary hover:text-white"
+                            className="rounded-base px-3 py-1 text-xs font-semibold text-white transition hover:!bg-secondary-dark focus:!ring-secondary/40"
+                            style={{ backgroundColor: "var(--secondary)" }}
                             onClick={() => openEditModal(convocatoria)}
                           >
                             Editar convocatoria
@@ -527,7 +550,7 @@ export const Presidente = () => {
             <Button
               type="submit"
               color="light"
-              className="border border-primary bg-primary px-5 text-white hover:bg-primary-dark"
+              className="bg-primary px-5 text-white hover:!bg-primary-dark focus:!ring-primary/40 disabled:bg-border-subtle"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Guardando..." : "Guardar"}
@@ -536,11 +559,36 @@ export const Presidente = () => {
         </form>
       </Modal>
 
-      <Modal show={inscriptionsOpen} onClose={closeInscripcionesModal} size="4xl">
+      <Modal show={inscriptionsOpen} onClose={closeInscripcionesModal} size="6xl">
         <Modal.Header>
           Inscripciones - {selectedConvocatoria?.titulo ?? "Convocatoria"}
         </Modal.Header>
         <Modal.Body>
+          <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="flex w-full flex-col gap-1">
+              <label className="text-sm font-semibold text-text-primary">
+                Buscar por nombre o correo
+              </label>
+              <TextInput
+                placeholder="Ej: Ana Perez"
+                value={inscripcionSearch}
+                onChange={(event) => setInscripcionSearch(event.target.value)}
+              />
+            </div>
+            <div className="flex w-full flex-col gap-1 md:max-w-xs">
+              <label className="text-sm font-semibold text-text-primary">Estado</label>
+              <Select
+                value={inscripcionStatusFilter}
+                onChange={(event) =>
+                  setInscripcionStatusFilter(event.target.value as typeof inscripcionStatusFilter)
+                }
+              >
+                <option value="TODAS">Todas</option>
+                <option value="PENDIENTE">Pendientes</option>
+                <option value="ACEPTADA">Aceptadas</option>
+              </Select>
+            </div>
+          </div>
           {inscripcionesError && (
             <Alert color="failure" className="mb-3">
               {inscripcionesError}
@@ -551,7 +599,7 @@ export const Presidente = () => {
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
               Cargando inscripciones...
             </div>
-          ) : inscripciones.length === 0 ? (
+          ) : filteredInscripciones.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-text-secondary">
               No hay inscripciones registradas.
             </div>
@@ -568,51 +616,75 @@ export const Presidente = () => {
                     <Table.HeadCell>Acciones</Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y">
-                    {inscripciones.map((inscripcion) => (
-                      <Table.Row key={inscripcion.id} className="bg-white text-sm">
-                        <Table.Cell className="font-semibold text-text-primary">
-                          {inscripcion.usuarioNombre}
-                        </Table.Cell>
-                        <Table.Cell>{inscripcion.usuarioCorreo}</Table.Cell>
-                        <Table.Cell>{inscripcion.tipo}</Table.Cell>
-                        <Table.Cell>
-                          <Badge color={inscripcion.estado === "APROBADO" ? "success" : "gray"}>
-                            {inscripcion.estado}
-                          </Badge>
-                        </Table.Cell>
-                        <Table.Cell>
-                          {formatDate(inscripcion.fechaRegistro)}
-                        </Table.Cell>
-                        <Table.Cell>
+                    {filteredInscripciones.map((inscripcion) => {
+                      const normalizedStatus = (inscripcion.estado ?? "").toUpperCase();
+                      const isAccepted = ACCEPTED_STATES.has(normalizedStatus);
+                      const isPending = normalizedStatus === "PENDIENTE";
+                      const canAccept = isPending;
+                      const canReject = isAccepted;
+                      const badgeColor = isAccepted ? "success" : isPending ? "warning" : "gray";
+                      return (
+                        <Table.Row key={inscripcion.id} className="bg-white text-sm">
+                          <Table.Cell className="font-semibold text-text-primary">
+                            {inscripcion.usuarioNombre}
+                          </Table.Cell>
+                          <Table.Cell>{inscripcion.usuarioCorreo}</Table.Cell>
+                          <Table.Cell>{inscripcion.tipo}</Table.Cell>
+                          <Table.Cell>
+                            <Badge
+                              color={badgeColor}
+                              className={
+                                isAccepted
+                                  ? "bg-green-100 text-green-800 border border-green-200"
+                                  : undefined
+                              }
+                            >
+                              {inscripcion.estado}
+                            </Badge>
+                          </Table.Cell>
+                          <Table.Cell>{formatDate(inscripcion.fechaRegistro)}</Table.Cell>
+                          <Table.Cell>
                           <div className="flex flex-wrap gap-2">
-                            <Button
-                              color="light"
-                              size="xs"
-                              disabled={inscripcionActionId === inscripcion.id}
-                              className="rounded-base border border-primary px-3 py-1 text-xs font-semibold text-primary hover:bg-primary hover:text-white"
-                              onClick={() => handleInscripcionAction(inscripcion, "aceptar")}
-                            >
-                              {inscripcionActionId === inscripcion.id ? "Procesando..." : "Aceptar"}
-                            </Button>
-                            <Button
-                              color="light"
-                              size="xs"
-                              disabled={inscripcionActionId === inscripcion.id}
-                              className="rounded-base border border-danger-subtle px-3 py-1 text-xs font-semibold text-danger hover:bg-danger hover:text-white"
-                              onClick={() => handleInscripcionAction(inscripcion, "rechazar")}
-                            >
-                              {inscripcionActionId === inscripcion.id ? "Procesando..." : "Rechazar"}
-                            </Button>
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                    ))}
+                              {canAccept && (
+                                <Button
+                                  color="light"
+                                  size="xs"
+                                  disabled={inscripcionActionId === inscripcion.id}
+                                  className="rounded-base bg-primary px-3 py-1 text-xs font-semibold text-white hover:!bg-primary-dark focus:!ring-primary/40 disabled:bg-border-subtle"
+                                  onClick={() => handleInscripcionAction(inscripcion, "aceptar")}
+                                >
+                                  {inscripcionActionId === inscripcion.id
+                                    ? "Procesando..."
+                                    : "Aceptar"}
+                                </Button>
+                              )}
+                              {canReject && (
+                                <Button
+                                  color="light"
+                                  size="xs"
+                                  disabled={inscripcionActionId === inscripcion.id}
+                                  className="rounded-base bg-red-500 px-3 py-1 text-xs font-semibold text-white hover:!bg-red-600 focus:!ring-red-300 disabled:bg-red-300"
+                                  onClick={() => handleInscripcionAction(inscripcion, "rechazar")}
+                                >
+                                  {inscripcionActionId === inscripcion.id
+                                    ? "Procesando..."
+                                    : "Rechazar"}
+                                </Button>
+                              )}
+                              {!canAccept && !canReject && (
+                                <span className="text-xs text-text-secondary">Sin acciones</span>
+                              )}
+                            </div>
+                          </Table.Cell>
+                        </Table.Row>
+                      );
+                    })}
                   </Table.Body>
                 </Table>
               </div>
               <div className="mt-4 flex flex-col gap-3 text-sm text-text-secondary md:flex-row md:items-center md:justify-between">
                 <p>
-                  Mostrando {inscripciones.length} de {inscripcionesTotal}
+                  Mostrando {filteredInscripciones.length} de {inscripciones.length}
                 </p>
                 <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
                   <Select

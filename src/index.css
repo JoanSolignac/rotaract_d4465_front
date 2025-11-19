@@ -10,6 +10,25 @@ body {
   min-height: 100vh;
 }
 
+button,
+.btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover:not(:disabled),
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(30, 168, 150, 0.15);
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
 /* SweetAlert2 customizations */
 .swal2-popup {
   font-family: "Poppins", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
