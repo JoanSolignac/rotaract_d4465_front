@@ -63,7 +63,6 @@ export const Presidente = () => {
   const [inscripcionesPage, setInscripcionesPage] = useState(1);
   const [inscripcionesPageSize, setInscripcionesPageSize] = useState(5);
   const [inscripcionesTotalPages, setInscripcionesTotalPages] = useState(1);
-  const [inscripcionesTotal, setInscripcionesTotal] = useState(0);
   const [inscripcionesLoading, setInscripcionesLoading] = useState(false);
   const [inscripcionesError, setInscripcionesError] = useState<string | null>(null);
   const [inscripcionActionId, setInscripcionActionId] = useState<number | null>(null);
@@ -285,7 +284,6 @@ export const Presidente = () => {
       });
       setInscripciones(result.items);
       setInscripcionesTotalPages(result.totalPages);
-      setInscripcionesTotal(result.total);
       const serverPage = result.page + 1;
       if (serverPage !== inscripcionesPage) {
         setInscripcionesPage(serverPage);
@@ -294,7 +292,6 @@ export const Presidente = () => {
       console.error("No se pudieron obtener las inscripciones", err);
       setInscripciones([]);
       setInscripcionesTotalPages(1);
-      setInscripcionesTotal(0);
       setInscripcionesError("Ocurrió un error al cargar las inscripciones.");
     } finally {
       setInscripcionesLoading(false);
