@@ -15,7 +15,52 @@ export interface Convocatoria {
   estado: string;
 }
 
-export type Proyecto = Convocatoria;
+export interface Proyecto {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  requisitos: string;
+  cupoMaximo?: number;
+  fechaPublicacion?: string;
+  fechaCierre?: string;
+  fechaInicioPostulacion: string;
+  fechaFinPostulacion: string;
+  fechaInicioProyecto?: string;
+  fechaFinProyecto?: string;
+  clubId: number;
+  clubNombre: string;
+  estado?: string;
+  estadoProyecto?: string;
+  objetivo?: string;
+  lugar?: string;
+  inscritos?: number;
+}
+
+export interface CreateProyectoPayload {
+  titulo: string;
+  descripcion: string;
+  objetivo: string;
+  fechaInicioPostulacion: string;
+  fechaFinPostulacion: string;
+  fechaInicioProyecto: string;
+  fechaFinProyecto: string;
+  lugar: string;
+  requisitos: string;
+  cupoMaximo: number;
+}
+
+export interface UpdateProyectoPayload {
+  titulo?: string;
+  descripcion?: string;
+  objetivo?: string;
+  fechaInicioPostulacion?: string;
+  fechaFinPostulacion?: string;
+  fechaInicioProyecto?: string;
+  fechaFinProyecto?: string;
+  lugar?: string;
+  requisitos?: string;
+  cupoMaximo?: number;
+}
 
 export interface ConvocatoriaInscripcion {
   id: number;
@@ -156,6 +201,27 @@ export const fetchClubProjects = async (params?: FetchPaginatedParams) => {
     params,
   });
   return buildPaginatedResult<Proyecto>(response.data, params);
+};
+
+export const createProyecto = async (payload: CreateProyectoPayload) => {
+  const response = await api.post<Proyecto>("/proyectos", payload);
+  return response.data;
+};
+
+export const updateProyecto = async (proyectoId: number, payload: UpdateProyectoPayload) => {
+  const response = await api.patch<Proyecto>(`/proyectos/${proyectoId}`, payload);
+  return response.data;
+};
+
+export const fetchProyectoInscripciones = async (
+  proyectoId: number,
+  params?: FetchPaginatedParams,
+) => {
+  const response = await api.get<RawPaginated<ConvocatoriaInscripcion> | ConvocatoriaInscripcion[]>(
+    `/proyectos/${proyectoId}/inscripciones`,
+    { params },
+  );
+  return buildPaginatedResult<ConvocatoriaInscripcion>(response.data, params);
 };
 
 export const fetchConvocatoriaInscripciones = async (
