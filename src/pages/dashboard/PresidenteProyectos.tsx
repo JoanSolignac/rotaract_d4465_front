@@ -28,6 +28,7 @@ const estadoProyectoStyles: Record<
   string,
   { label: string; accentClass: string }
 > = {
+  PROPUESTO: { label: "Propuesto", accentClass: "bg-gray-400" },
   EN_POSTULACION: { label: "En postulación", accentClass: "bg-primary" },
   EN_EJECUCION: { label: "En ejecución", accentClass: "bg-sky-500" },
   FINALIZADO: { label: "Finalizado", accentClass: "bg-emerald-500" },
