@@ -132,30 +132,36 @@ export const Socio = () => {
         hint="Aquí verás los proyectos del distrito listos para recibir postulaciones."
       />
 
-      <section className="rounded-3xl bg-white p-6 shadow-card ring-1 ring-border-subtle">
-        <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-text-primary">Proyectos del distrito</h2>
-            <p className="text-sm text-text-secondary">
-              Descubre oportunidades activas y revisa los requisitos antes de postular.
-            </p>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <Select
-              value={String(pageSize)}
-              onChange={(event) => {
-                setPageSize(Number(event.target.value));
-                setPage(1);
-              }}
-            >
-              {[6, 9, 12].map((option) => (
-                <option key={option} value={option}>
-                  {option} / pág
-                </option>
-              ))}
-            </Select>
-          </div>
-        </header>
+      <section className="glass-card relative overflow-hidden p-6 text-white">
+        <div className="liquid-blob -left-14 top-10 h-48 w-48 bg-rotaract-pink/35" />
+        <div className="liquid-blob right-0 top-0 h-40 w-40 bg-purple-500/25" />
+        <div className="relative">
+          <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="glass-chip text-[0.65rem] text-rose-50">Proyectos</p>
+              <h2 className="mt-2 text-2xl font-bold leading-tight text-white drop-shadow-lg">Proyectos del distrito</h2>
+              <p className="text-sm text-rose-50/70">
+                Descubre oportunidades activas y revisa los requisitos antes de postular.
+              </p>
+            </div>
+            <div className="glass-card flex items-center gap-3 border-white/15 bg-white/5 px-4 py-3 text-sm text-rose-50">
+              <span className="text-xs uppercase tracking-[0.24em] text-rose-50/60">Por página</span>
+              <Select
+                value={String(pageSize)}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value));
+                  setPage(1);
+                }}
+                className="bg-transparent text-white"
+              >
+                {[6, 9, 12].map((option) => (
+                  <option key={option} value={option}>
+                    {option} / pág
+                  </option>
+                ))}
+              </Select>
+            </div>
+          </header>
 
         {error && (
           <div className="mb-4 rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
@@ -164,14 +170,14 @@ export const Socio = () => {
         )}
 
         {loading ? (
-          <div className="flex flex-col items-center gap-2 py-10 text-sm text-text-secondary">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+          <div className="flex flex-col items-center gap-2 py-10 text-sm text-rose-50/70">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-rose-200/30 border-t-rotaract-pink" />
             Cargando proyectos...
           </div>
         ) : projects.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border-subtle p-10 text-center">
-            <h3 className="text-lg font-semibold text-text-primary">No hay proyectos disponibles</h3>
-            <p className="text-sm text-text-secondary">
+          <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-10 text-center text-rose-50">
+            <h3 className="text-lg font-semibold text-white">No hay proyectos disponibles</h3>
+            <p className="text-sm text-rose-50/70">
               Cuando haya proyectos activos podrás postularte desde aquí.
             </p>
           </div>
@@ -181,42 +187,42 @@ export const Socio = () => {
               {projects.map((project) => (
                 <Card
                   key={project.id}
-                  className="h-full border border-border-subtle shadow-card transition hover:-translate-y-1 hover:shadow-lg"
+                  className="glass-card h-full border-white/10 bg-white/5 text-white shadow-strong transition hover:-translate-y-1 hover:shadow-strong"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
-                      <p className="text-xs uppercase tracking-wide text-text-secondary">
+                      <p className="text-xs uppercase tracking-wide text-rose-50/60">
                         {project.clubNombre}
                       </p>
-                      <h3 className="text-lg font-semibold text-text-primary">{project.titulo}</h3>
+                      <h3 className="text-lg font-semibold text-white drop-shadow-sm">{project.titulo}</h3>
                     </div>
                     {estadoBadge(project.estadoProyecto, project.estado)}
                   </div>
-                  <p className="text-sm text-text-secondary">{project.descripcion}</p>
-                  <div className="grid gap-3 text-xs text-text-secondary sm:grid-cols-2">
-                    <div className="rounded-xl border border-border-subtle bg-bg-soft px-3 py-2">
-                      <p className="text-[0.65rem] uppercase tracking-wide text-text-secondary opacity-70">
+                  <p className="text-sm text-rose-50/75">{project.descripcion}</p>
+                  <div className="grid gap-3 text-xs text-rose-50/70 sm:grid-cols-2">
+                    <div className="rounded-xl border border-white/10 bg-white/10 px-3 py-2">
+                      <p className="text-[0.65rem] uppercase tracking-wide text-rose-50/60">
                         Postulación
                       </p>
-                      <p className="text-sm font-semibold text-text-primary">
+                      <p className="text-sm font-semibold text-white">
                         {formatDateRange(project.fechaInicioPostulacion, project.fechaFinPostulacion)}
                       </p>
                     </div>
-                    <div className="rounded-xl border border-border-subtle bg-bg-soft px-3 py-2">
-                      <p className="text-[0.65rem] uppercase tracking-wide text-text-secondary opacity-70">
+                    <div className="rounded-xl border border-white/10 bg-white/10 px-3 py-2">
+                      <p className="text-[0.65rem] uppercase tracking-wide text-rose-50/60">
                         Inicio del proyecto
                       </p>
-                      <p className="text-sm font-semibold text-text-primary">
+                      <p className="text-sm font-semibold text-white">
                         {project.fechaInicioProyecto ? formatDate(project.fechaInicioProyecto) : "-"}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between text-sm font-semibold text-text-primary">
+                  <div className="flex items-center justify-between text-sm font-semibold text-white">
                     <span>Cupo: {project.cupoMaximo ?? "-"}</span>
-                    <span className="text-text-secondary">Inscritos: {project.inscritos ?? 0}</span>
+                    <span className="text-rose-50/70">Inscritos: {project.inscritos ?? 0}</span>
                   </div>
-                  <div className="text-xs text-text-secondary">
-                    <span className="font-semibold text-text-primary">Requisitos:</span>{" "}
+                  <div className="text-xs text-rose-50/75">
+                    <span className="font-semibold text-white">Requisitos:</span>{" "}
                     {project.requisitos || "Sin requisitos definidos"}
                   </div>
                   <div className="flex justify-end">
@@ -224,7 +230,7 @@ export const Socio = () => {
                       <Button
                         size="xs"
                         color="light"
-                        className="bg-primary px-4 text-xs font-semibold text-white shadow-soft hover:!bg-primary-dark focus:!ring-primary/40"
+                        className="bg-gradient-to-r from-rotaract-pink to-purple-500 px-4 text-xs font-semibold text-white shadow-strong hover:brightness-110 focus:!ring-primary/40"
                         type="button"
                         disabled={applyingId === project.id}
                         onClick={async () => {
@@ -260,7 +266,7 @@ export const Socio = () => {
                       <Button
                         size="xs"
                         color="light"
-                        className="px-4 text-xs font-semibold text-primary ring-1 ring-border-subtle hover:!bg-bg-soft focus:!ring-primary/40"
+                        className="border border-white/15 px-4 text-xs font-semibold text-rose-50 hover:!bg-white/10 focus:!ring-primary/40"
                         onClick={() => {
                           setSelectedProject(project);
                           setInscriptionsOpen(true);
@@ -273,10 +279,10 @@ export const Socio = () => {
                 </Card>
               ))}
             </div>
-            <div className="mt-4 flex flex-col gap-3 text-sm text-text-secondary md:flex-row md:items-center md:justify-between">
+            <div className="mt-4 flex flex-col gap-3 text-sm text-rose-50/70 md:flex-row md:items-center md:justify-between">
               <p>{paginationLabel}</p>
               <div className="flex items-center gap-3">
-                <Button color="light" onClick={loadProjects}>
+                <Button color="light" className="border border-white/15 bg-white/5 text-white hover:!bg-white/10" onClick={loadProjects}>
                   Refrescar
                 </Button>
                 <Pagination
@@ -289,6 +295,7 @@ export const Socio = () => {
             </div>
           </>
         )}
+        </div>
       </section>
 
       <Modal
@@ -300,40 +307,40 @@ export const Socio = () => {
           setInscriptions([]);
         }}
       >
-        <Modal.Header>
+        <Modal.Header className="bg-[#0f0a17] text-white">
           Inscripciones aceptadas {selectedProject ? `- ${selectedProject.titulo}` : ""}
         </Modal.Header>
-        <Modal.Body className="space-y-4">
+        <Modal.Body className="space-y-4 bg-[#0f0a17] text-rose-50">
           {inscriptionsError && (
             <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
               {inscriptionsError}
             </div>
           )}
           {inscriptionsLoading ? (
-            <div className="flex flex-col items-center gap-2 py-6 text-sm text-text-secondary">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+            <div className="flex flex-col items-center gap-2 py-6 text-sm text-rose-50/70">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200/30 border-t-rotaract-pink" />
               Cargando inscripciones...
             </div>
           ) : inscriptions.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border-subtle p-8 text-center text-sm text-text-secondary">
+            <div className="rounded-xl border border-dashed border-white/15 bg-white/5 p-8 text-center text-sm text-rose-50/70">
               No hay inscripciones aceptadas.
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-border-subtle">
-              <Table>
-                <Table.Head className="bg-bg-soft text-xs uppercase text-text-secondary">
-                  <Table.HeadCell>Nombre</Table.HeadCell>
-                  <Table.HeadCell>Correo</Table.HeadCell>
-                  <Table.HeadCell>Fecha registro</Table.HeadCell>
+            <div className="overflow-x-auto rounded-xl border border-white/15">
+              <Table className="text-rose-50">
+                <Table.Head className="bg-white/5 text-xs uppercase text-rose-50/70">
+                  <Table.HeadCell className="text-rose-50">Nombre</Table.HeadCell>
+                  <Table.HeadCell className="text-rose-50">Correo</Table.HeadCell>
+                  <Table.HeadCell className="text-rose-50">Fecha registro</Table.HeadCell>
                 </Table.Head>
-                <Table.Body className="divide-y">
+                <Table.Body className="divide-y divide-white/10">
                   {inscriptions.map((item) => (
-                    <Table.Row key={item.id} className="bg-white text-sm">
-                      <Table.Cell className="font-semibold text-text-primary">
+                    <Table.Row key={item.id} className="bg-transparent text-sm text-rose-50">
+                      <Table.Cell className="font-semibold text-white">
                         {item.usuarioNombre}
                       </Table.Cell>
-                      <Table.Cell className="text-text-secondary">{item.usuarioCorreo}</Table.Cell>
-                      <Table.Cell className="text-text-secondary">
+                      <Table.Cell className="text-rose-50/70">{item.usuarioCorreo}</Table.Cell>
+                      <Table.Cell className="text-rose-50/70">
                         {item.fechaRegistro ? formatDate(item.fechaRegistro) : "-"}
                       </Table.Cell>
                     </Table.Row>
@@ -343,9 +350,10 @@ export const Socio = () => {
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer className="flex justify-end border-t border-border-subtle px-6 py-4">
+        <Modal.Footer className="flex justify-end border-t border-white/10 bg-[#0f0a17] px-6 py-4">
           <Button
             color="light"
+            className="border border-white/15 bg-white/5 text-white hover:!bg-white/10"
             onClick={() => {
               setInscriptionsOpen(false);
               setSelectedProject(null);

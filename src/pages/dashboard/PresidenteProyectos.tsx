@@ -378,42 +378,47 @@ export const PresidenteProyectos = () => {
         hint="Pronto podrás registrar proyectos directamente desde esta vista."
       />
 
-      <section className="rounded-3xl bg-white p-6 shadow-card ring-1 ring-border-subtle">
-        <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-text-primary">
-              Proyectos del club
-            </h2>
-            <p className="text-sm text-text-secondary">
-              Consulta el estado y los requisitos de cada proyecto vigente.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Select
-              value={String(pageSize)}
-              onChange={(event) => {
-                setPageSize(Number(event.target.value));
-                setPage(1);
-              }}
-            >
-              {[5, 10, 15].map((option) => (
-                <option key={option} value={option}>
-                  {option} / pág
-                </option>
-              ))}
-            </Select>
-            <Button color="light" onClick={loadProjects}>
-              Refrescar
-            </Button>
-            <Button
-              color="light"
-              className="bg-primary px-5 text-white hover:!bg-primary-dark focus:!ring-primary/40"
-              onClick={openModal}
-            >
-              Crear proyecto
-            </Button>
-          </div>
-        </header>
+      <section className="glass-card relative overflow-hidden p-6 text-white">
+        <div className="liquid-blob -left-10 top-6 h-48 w-48 bg-rotaract-pink/35" />
+        <div className="liquid-blob right-0 top-0 h-44 w-44 bg-purple-500/25" />
+        <div className="relative">
+          <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="glass-chip text-[0.65rem] text-rose-50">Proyectos</p>
+              <h2 className="mt-2 text-2xl font-bold leading-tight drop-shadow-lg">
+                Proyectos del club
+              </h2>
+              <p className="text-sm text-rose-50/70">
+                Consulta el estado y los requisitos de cada proyecto vigente.
+              </p>
+            </div>
+            <div className="glass-card flex flex-wrap items-center gap-3 border-white/15 bg-white/5 px-4 py-3 text-sm text-rose-50">
+              <Select
+                value={String(pageSize)}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value));
+                  setPage(1);
+                }}
+                className="bg-transparent text-white"
+              >
+                {[5, 10, 15].map((option) => (
+                  <option key={option} value={option}>
+                    {option} / pág
+                  </option>
+                ))}
+              </Select>
+              <Button color="light" className="border border-white/15 bg-white/5 text-white hover:!bg-white/10" onClick={loadProjects}>
+                Refrescar
+              </Button>
+              <Button
+                color="light"
+                className="bg-gradient-to-r from-rotaract-pink to-purple-500 px-5 text-white shadow-strong hover:brightness-110 focus:!ring-primary/40"
+                onClick={openModal}
+              >
+                Crear proyecto
+              </Button>
+            </div>
+          </header>
 
         {error && (
           <Alert color="failure" className="mb-4">
@@ -521,6 +526,7 @@ export const PresidenteProyectos = () => {
             </div>
           </>
         )}
+        </div>
       </section>
       <Modal show={isModalOpen} onClose={closeModal} size="2xl">
         <Modal.Header>Nuevo proyecto</Modal.Header>
