@@ -8,17 +8,25 @@
 body {
   @apply bg-bg-soft text-text-primary;
   min-height: 100vh;
+  background-color: #05030b;
+  background-image:
+    radial-gradient(circle at 18% 22%, rgba(255, 43, 130, 0.22), transparent 28%),
+    radial-gradient(circle at 78% 16%, rgba(157, 124, 255, 0.2), transparent 30%),
+    radial-gradient(circle at 40% 78%, rgba(243, 200, 107, 0.18), transparent 32%),
+    conic-gradient(from 120deg at 60% 40%, rgba(255, 43, 130, 0.12), rgba(157, 124, 255, 0.06), rgba(12, 9, 21, 0.65)),
+    linear-gradient(130deg, #05030b 0%, #090619 40%, #070412 100%);
+  background-attachment: fixed;
 }
 
 button,
 .btn {
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:hover:not(:disabled),
 .btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 25px rgba(30, 168, 150, 0.15);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 16px 40px rgba(255, 45, 138, 0.25);
 }
 
 button:disabled,
@@ -33,6 +41,8 @@ button:disabled,
 .swal2-popup {
   font-family: "Poppins", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   border-radius: 1.5rem !important;
+  background: linear-gradient(160deg, #1b102b, #120c1d) !important;
+  color: var(--text-primary) !important;
 }
 
 .swal2-styled {
@@ -42,28 +52,215 @@ button:disabled,
 }
 
 .swal2-styled.swal2-confirm {
-  background-color: var(--primary) !important;
+  background: linear-gradient(120deg, var(--primary), var(--accent)) !important;
   color: #fff !important;
-  border: 1px solid var(--primary) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .swal2-styled.swal2-cancel {
-  background-color: #fff !important;
+  background-color: #120c1d !important;
   color: var(--text-primary) !important;
   border: 1px solid var(--border-subtle) !important;
 }
 
-.glass-card {
-  /* Translucent surface card */
-  @apply backdrop-blur-xl rounded-2xl shadow-soft border border-border-subtle;
-  /* Approx 80% opacity of surface */
-  background-color: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+.material-card {
+  @apply rounded-3xl shadow-soft border border-border-subtle overflow-hidden;
+  background: color-mix(in srgb, var(--bg-panel) 82%, transparent);
+  backdrop-filter: blur(18px) saturate(130%);
+  position: relative;
+  isolation: isolate;
 }
 
-.material-card {
-  @apply rounded-2xl bg-bg-surface shadow-soft border border-border-subtle;
+.material-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 18% 18%, rgba(255, 43, 130, 0.16), transparent 32%),
+    radial-gradient(circle at 90% 10%, rgba(157, 124, 255, 0.16), transparent 28%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.03), transparent 46%);
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.glass-card {
+  @apply rounded-[28px] shadow-soft border;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  border-color: color-mix(in srgb, var(--border-subtle) 70%, transparent);
+  backdrop-filter: blur(22px) saturate(130%);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 43, 130, 0.12), transparent 32%),
+    radial-gradient(circle at 78% 12%, rgba(157, 124, 255, 0.12), transparent 30%),
+    linear-gradient(120deg, rgba(243, 200, 107, 0.08), transparent);
+  pointer-events: none;
 }
 
 .page-container {
-  @apply min-h-screen bg-gradient-to-br from-bg-soft via-bg-soft to-bg-surface px-4 py-10;
+  @apply min-h-screen px-4 py-10;
+}
+
+.bg-ambient {
+  background: radial-gradient(circle at 18% 20%, rgba(255, 45, 138, 0.2), transparent 36%),
+    radial-gradient(circle at 70% 14%, rgba(145, 89, 255, 0.22), transparent 32%),
+    radial-gradient(circle at 45% 80%, rgba(242, 196, 109, 0.18), transparent 34%),
+    linear-gradient(135deg, rgba(12, 6, 20, 0.92) 0%, rgba(13, 7, 23, 0.96) 50%, rgba(10, 6, 18, 0.94) 100%);
+  background-size: 100%;
+  background-position: center;
+}
+
+.aurora-grid {
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(255, 43, 130, 0.26), transparent 30%),
+    radial-gradient(circle at 88% 18%, rgba(157, 124, 255, 0.2), transparent 28%),
+    radial-gradient(circle at 50% 90%, rgba(243, 200, 107, 0.2), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
+    linear-gradient(135deg, rgba(12, 9, 19, 0.92), rgba(7, 4, 12, 0.95));
+  background-size: cover;
+  position: relative;
+}
+
+.aurora-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 140px 140px;
+  mask-image: radial-gradient(circle at center, black 45%, transparent 80%);
+  pointer-events: none;
+}
+
+.grid-lines::before,
+.grid-lines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 120px 120px;
+  mask-image: radial-gradient(circle at center, black, transparent 70%);
+}
+
+.shadow-floating {
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 20px 45px rgba(255, 45, 138, 0.16);
+}
+
+.accent-card {
+  background: linear-gradient(135deg, rgba(255, 43, 130, 0.16), rgba(157, 124, 255, 0.14)),
+    linear-gradient(180deg, rgba(16, 10, 26, 0.95), rgba(9, 6, 18, 0.94));
+  border-color: color-mix(in srgb, var(--border-subtle) 70%, transparent);
+  box-shadow: 0 20px 38px rgba(255, 43, 130, 0.24);
+  position: relative;
+  overflow: hidden;
+}
+
+.accent-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(243, 200, 107, 0.16), transparent 35%);
+  pointer-events: none;
+}
+
+
+.timeline-item {
+  @apply flex items-start gap-3 rounded-2xl px-3 py-3;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border: 1px solid color-mix(in srgb, var(--border-subtle) 75%, transparent);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.timeline-dot {
+  @apply mt-1 h-2.5 w-2.5 rounded-full;
+  box-shadow: 0 0 0 8px rgba(255, 43, 130, 0.14), 0 0 16px rgba(157, 124, 255, 0.35);
+}
+
+
+.stat-pill {
+  @apply rounded-2xl p-3 backdrop-blur;
+  background: linear-gradient(155deg, rgba(255, 43, 130, 0.12), rgba(9, 6, 18, 0.96));
+  border: 1px solid color-mix(in srgb, var(--border-subtle) 78%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 15px 30px rgba(0, 0, 0, 0.35);
+}
+
+.frosted-panel {
+  background: linear-gradient(145deg, rgba(17, 10, 28, 0.92), rgba(9, 6, 18, 0.94));
+  border: 1px solid color-mix(in srgb, var(--border-subtle) 65%, transparent);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.frosted-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 15% 25%, rgba(255, 43, 130, 0.16), transparent 35%);
+  pointer-events: none;
+}
+
+.shadow-strong {
+  box-shadow: 0 18px 38px rgba(255, 43, 130, 0.3), 0 12px 26px rgba(0, 0, 0, 0.45);
+}
+
+.badge-chip {
+  @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide;
+  background: linear-gradient(120deg, rgba(255, 43, 130, 0.28), rgba(157, 124, 255, 0.22));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 10px 28px rgba(255, 43, 130, 0.18);
+}
+
+.neon-separator {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 45, 138, 0.6), transparent);
+}
+
+.grid-card {
+  @apply rounded-2xl p-5;
+  background: linear-gradient(160deg, rgba(27, 16, 43, 0.9), rgba(13, 8, 22, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.glass-chip {
+  @apply rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-text-muted;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  letter-spacing: 0.35em;
+}
+
+.liquid-blob {
+  position: absolute;
+  filter: blur(60px);
+  opacity: 0.8;
+  mix-blend-mode: screen;
+}
+
+.halo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.25), transparent 65%);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.glow-line {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 43, 130, 0.9), rgba(157, 124, 255, 0));
+  opacity: 0.4;
+}
+
+.subtle-card {
+  background: linear-gradient(170deg, rgba(12, 7, 19, 0.9), rgba(9, 6, 16, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
 }
