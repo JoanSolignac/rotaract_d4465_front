@@ -11,18 +11,19 @@ export const Home = () => {
   const ctaLabel = role ? "Ir a mi panel" : "Iniciar sesión";
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-ambient text-text-primary">
+    <div className="relative min-h-screen overflow-hidden text-text-primary">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 grid-lines" />
-        <div className="absolute -left-20 top-24 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute -right-10 top-6 h-56 w-56 rounded-full bg-accent/25 blur-3xl" />
-        <div className="absolute bottom-[-5rem] left-1/3 h-72 w-72 rounded-full bg-secondary/18 blur-3xl" />
+        <div className="absolute inset-0 aurora-grid" />
+        <div className="liquid-blob -left-10 top-10 h-64 w-64 rounded-full bg-primary/25" />
+        <div className="liquid-blob right-10 top-20 h-72 w-72 rounded-full bg-accent/24" />
+        <div className="liquid-blob left-1/3 bottom-[-5rem] h-80 w-80 rounded-full bg-secondary/18" />
       </div>
 
-      <header className="relative mx-auto mt-6 flex max-w-6xl items-center justify-between rounded-full border border-border-subtle/70 bg-white/5 px-5 py-4 shadow-floating backdrop-blur-xl">
+      <header className="relative mx-auto mt-6 flex max-w-6xl items-center justify-between rounded-full border border-white/10 bg-white/5 px-5 py-4 shadow-floating backdrop-blur-2xl">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-[#ff4d9f] to-accent text-white shadow-soft ring-2 ring-white/10">
-            <img src={logo} alt="Rotaract D4465" className="h-7 w-7" />
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-[#ff4fa5] to-accent text-white shadow-soft ring-2 ring-white/10">
+            <img src={logo} alt="Rotaract D4465" className="h-7 w-7 drop-shadow" />
+            <span className="halo-ring" />
           </div>
           <div>
             <p className="text-[11px] uppercase tracking-[0.5em] text-text-muted">Rotaract</p>
@@ -42,21 +43,25 @@ export const Home = () => {
       </header>
 
       <main className="relative mx-auto max-w-6xl space-y-12 px-4 py-12">
-        <section className="grid items-start gap-8 lg:grid-cols-[1.05fr,0.95fr]">
-          <div className="relative overflow-hidden rounded-3xl border border-border-subtle bg-white/5 p-10 shadow-floating backdrop-blur-xl">
+        <section className="grid items-start gap-8 lg:grid-cols-[1.1fr,0.9fr]">
+          <div className="glass-card relative overflow-hidden p-10">
+            <div className="absolute inset-0 grid-lines opacity-60" />
             <div className="absolute -left-10 -top-16 h-56 w-56 rounded-full bg-primary/25 blur-3xl" />
             <div className="absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-accent/30 blur-3xl" />
             <div className="relative space-y-8">
-              <div className="badge-chip">
-                <span className="h-2.5 w-2.5 rounded-full bg-gradient-to-r from-primary to-accent" />
-                Rotaract 2025 · Futuro vibrante
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="badge-chip shadow-strong">
+                  <span className="h-2.5 w-2.5 rounded-full bg-gradient-to-r from-primary to-accent" />
+                  Rotaract 2025 · Liquid glass
+                </div>
+                <div className="glass-chip">UI reinventada</div>
               </div>
               <div className="space-y-4">
                 <h2 className="text-4xl font-bold leading-tight text-white md:text-5xl">
-                  Comunidad, liderazgo y acción digital con ADN Rotaract
+                  Ecosistema Rotaract con estética líquida, audaz y funcional
                 </h2>
                 <p className="max-w-2xl text-lg text-text-secondary">
-                  Un hub oscuro y audaz para tus clubes, proyectos y convocatorias. Mantén tus accesos y métricas a la vista mientras disfrutas de una interfaz contemporánea.
+                  Navega por clubes, proyectos y convocatorias desde un hub oscuro con reflejos magenta-dorado, vidrio reactivo y accesos listos para tu rol.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -79,7 +84,7 @@ export const Home = () => {
                 {["Clubes activos", "Impacto anual", "Convocatorias"].map((label, idx) => (
                   <div
                     key={label}
-                    className="rounded-2xl border border-border-subtle/70 bg-white/5 p-4 shadow-soft backdrop-blur"
+                    className="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-soft backdrop-blur-xl"
                   >
                     <p className="text-[12px] font-semibold uppercase tracking-wide text-text-muted">{label}</p>
                     <p className="text-3xl font-bold text-primary">
@@ -98,7 +103,7 @@ export const Home = () => {
 
           <div className="grid gap-4">
             <Card
-              title="Accesos rápidos futuristas"
+              title="Accesos líquidos"
               description="Pulsa y navega directo a los endpoints esenciales del distrito."
               className="accent-card"
             >
@@ -125,7 +130,7 @@ export const Home = () => {
               <Card
                 title="Agenda inmediata"
                 description="Las próximas acciones que mueven el distrito."
-                className="bg-white/5"
+                className="glass-card"
               >
                 <div className="space-y-3 text-sm text-text-secondary">
                   <div className="timeline-item">
@@ -155,7 +160,7 @@ export const Home = () => {
               <Card
                 title="Pulso del distrito"
                 description="Indicadores dinámicos en una sola vista."
-                className="bg-gradient-to-br from-[#1d0f30] via-[#140b25] to-[#0f091b]"
+                className="bg-gradient-to-br from-[#140e24]/90 via-[#0f091b]/95 to-[#0a0715]/95"
               >
                 <div className="grid grid-cols-2 gap-3 text-sm text-text-secondary">
                   <div className="stat-pill">
@@ -208,7 +213,7 @@ export const Home = () => {
           >
             <ul className="space-y-3 text-sm text-text-secondary">
               <li>• Gradientes oscuros con destellos magenta y dorado.</li>
-              <li>• Tarjetas con vidrio holográfico y líneas de grilla futurista.</li>
+              <li>• Tarjetas con vidrio líquido y brillos holográficos.</li>
               <li>• Botones con glow y contrastes para acciones clave.</li>
             </ul>
           </Card>
@@ -228,7 +233,7 @@ export const Home = () => {
       </main>
 
       <footer className="relative mx-auto max-w-6xl px-4 pb-12 text-sm text-text-secondary">
-        <div className="flex flex-col gap-3 rounded-2xl border border-border-subtle/80 bg-white/5 p-4 text-center shadow-floating backdrop-blur md:flex-row md:items-center md:justify-between md:text-left">
+        <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-center shadow-floating backdrop-blur md:flex-row md:items-center md:justify-between md:text-left">
           <p className="font-semibold text-text-primary">Rotaract Distrito 4465</p>
           <p>© {new Date().getFullYear()}. Comunidad audaz con propósito.</p>
           <div className="flex items-center justify-center gap-2 text-text-muted">
