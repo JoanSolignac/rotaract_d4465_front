@@ -25,7 +25,6 @@ import {
   type CreateConvocatoriaPayload,
   type ConvocatoriaInscripcion,
 } from "../../api/convocatorias";
-import { convertToISODate } from "../../utils/dateFormat";
 import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 
 const ACCEPTED_STATES = new Set(["APROBADO", "APROBADA", "ACEPTADO", "ACEPTADA"]);

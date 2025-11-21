@@ -1,9 +1,15 @@
 import { useCallback, useEffect, useMemo, useState, type ComponentProps } from "react";
-import { Badge, Button, Card, Pagination, Select } from "flowbite-react";
+import { Badge, Button, Card, Modal, Pagination, Select, Table } from "flowbite-react";
 import Swal from "sweetalert2";
 import { useAuth } from "../../hooks/useAuth";
 import { WelcomePanel } from "./components/WelcomePanel";
-import { fetchClubProjects, inscribirseProyecto, type Proyecto } from "../../api/convocatorias";
+import {
+  fetchClubProjects,
+  fetchProyectoInscripciones,
+  inscribirseProyecto,
+  type ConvocatoriaInscripcion,
+  type Proyecto,
+} from "../../api/convocatorias";
 import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 
 const formatDate = (iso?: string) => (iso ? new Date(iso).toLocaleDateString() : "-");
@@ -55,6 +61,11 @@ export const Socio = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [applyingId, setApplyingId] = useState<number | null>(null);
+  const [inscriptionsOpen, setInscriptionsOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Proyecto | null>(null);
+  const [inscriptions, setInscriptions] = useState<ConvocatoriaInscripcion[]>([]);
+  const [inscriptionsLoading, setInscriptionsLoading] = useState(false);
+  const [inscriptionsError, setInscriptionsError] = useState<string | null>(null);
 
   const loadProjects = useCallback(async () => {
     setLoading(true);
@@ -82,6 +93,29 @@ export const Socio = () => {
   useEffect(() => {
     loadProjects();
   }, [loadProjects]);
+
+  const loadInscriptions = useCallback(async () => {
+    if (!inscriptionsOpen || !selectedProject) return;
+    setInscriptionsLoading(true);
+    setInscriptionsError(null);
+    try {
+      const response = await fetchProyectoInscripciones(selectedProject.id, { size: 100 });
+      const accepted = response.items.filter(
+        (item) => (item.estado ?? "").toUpperCase().startsWith("ACEPT"),
+      );
+      setInscriptions(accepted);
+    } catch (err) {
+      console.error("No se pudieron obtener las inscripciones", err);
+      setInscriptions([]);
+      setInscriptionsError("Ocurrió un error al cargar las inscripciones.");
+    } finally {
+      setInscriptionsLoading(false);
+    }
+  }, [inscriptionsOpen, selectedProject]);
+
+  useEffect(() => {
+    loadInscriptions();
+  }, [loadInscriptions]);
 
   const paginationLabel = useMemo(() => {
     const start = totalItems === 0 ? 0 : (page - 1) * pageSize + 1;
@@ -186,42 +220,55 @@ export const Socio = () => {
                     {project.requisitos || "Sin requisitos definidos"}
                   </div>
                   <div className="flex justify-end">
-                    <Button
-                      size="xs"
-                      color="light"
-                      className="bg-primary px-4 text-xs font-semibold text-white shadow-soft hover:!bg-primary-dark focus:!ring-primary/40"
-                      type="button"
-                      disabled={applyingId === project.id}
-                      onClick={async () => {
-                        setApplyingId(project.id);
-                        try {
-                          await inscribirseProyecto(project.id);
-                          await Swal.fire({
-                            title: "Postulación enviada",
-                            text: "Tu postulación fue registrada con éxito.",
-                            icon: "success",
-                            confirmButtonColor: "#1ea896",
-                          });
-                          await loadProjects();
-                        } catch (err) {
-                          console.error("No se pudo inscribir al proyecto", err);
-                          const message = getApiErrorMessage(
-                            err,
-                            "No pudimos registrar tu postulación. Intenta nuevamente.",
-                          );
-                          await Swal.fire({
-                            title: "Error",
-                            text: message,
-                            icon: "error",
-                            confirmButtonColor: "#1ea896",
-                          });
-                        } finally {
-                          setApplyingId(null);
-                        }
-                      }}
-                    >
-                      {applyingId === project.id ? "Postulando..." : "Postular"}
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        size="xs"
+                        color="light"
+                        className="bg-primary px-4 text-xs font-semibold text-white shadow-soft hover:!bg-primary-dark focus:!ring-primary/40"
+                        type="button"
+                        disabled={applyingId === project.id}
+                        onClick={async () => {
+                          setApplyingId(project.id);
+                          try {
+                            await inscribirseProyecto(project.id);
+                            await Swal.fire({
+                              title: "Postulación enviada",
+                              text: "Tu postulación fue registrada con éxito.",
+                              icon: "success",
+                              confirmButtonColor: "#1ea896",
+                            });
+                            await loadProjects();
+                          } catch (err) {
+                            console.error("No se pudo inscribir al proyecto", err);
+                            const message = getApiErrorMessage(
+                              err,
+                              "No pudimos registrar tu postulación. Intenta nuevamente.",
+                            );
+                            await Swal.fire({
+                              title: "Error",
+                              text: message,
+                              icon: "error",
+                              confirmButtonColor: "#1ea896",
+                            });
+                          } finally {
+                            setApplyingId(null);
+                          }
+                        }}
+                      >
+                        {applyingId === project.id ? "Postulando..." : "Postular"}
+                      </Button>
+                      <Button
+                        size="xs"
+                        color="light"
+                        className="px-4 text-xs font-semibold text-primary ring-1 ring-border-subtle hover:!bg-bg-soft focus:!ring-primary/40"
+                        onClick={() => {
+                          setSelectedProject(project);
+                          setInscriptionsOpen(true);
+                        }}
+                      >
+                        Ver inscripciones
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               ))}
@@ -243,6 +290,72 @@ export const Socio = () => {
           </>
         )}
       </section>
+
+      <Modal
+        show={inscriptionsOpen}
+        size="3xl"
+        onClose={() => {
+          setInscriptionsOpen(false);
+          setSelectedProject(null);
+          setInscriptions([]);
+        }}
+      >
+        <Modal.Header>
+          Inscripciones aceptadas {selectedProject ? `- ${selectedProject.titulo}` : ""}
+        </Modal.Header>
+        <Modal.Body className="space-y-4">
+          {inscriptionsError && (
+            <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
+              {inscriptionsError}
+            </div>
+          )}
+          {inscriptionsLoading ? (
+            <div className="flex flex-col items-center gap-2 py-6 text-sm text-text-secondary">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+              Cargando inscripciones...
+            </div>
+          ) : inscriptions.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border-subtle p-8 text-center text-sm text-text-secondary">
+              No hay inscripciones aceptadas.
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-xl border border-border-subtle">
+              <Table>
+                <Table.Head className="bg-bg-soft text-xs uppercase text-text-secondary">
+                  <Table.HeadCell>Nombre</Table.HeadCell>
+                  <Table.HeadCell>Correo</Table.HeadCell>
+                  <Table.HeadCell>Fecha registro</Table.HeadCell>
+                </Table.Head>
+                <Table.Body className="divide-y">
+                  {inscriptions.map((item) => (
+                    <Table.Row key={item.id} className="bg-white text-sm">
+                      <Table.Cell className="font-semibold text-text-primary">
+                        {item.usuarioNombre}
+                      </Table.Cell>
+                      <Table.Cell className="text-text-secondary">{item.usuarioCorreo}</Table.Cell>
+                      <Table.Cell className="text-text-secondary">
+                        {item.fechaRegistro ? formatDate(item.fechaRegistro) : "-"}
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="flex justify-end border-t border-border-subtle px-6 py-4">
+          <Button
+            color="light"
+            onClick={() => {
+              setInscriptionsOpen(false);
+              setSelectedProject(null);
+              setInscriptions([]);
+            }}
+          >
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

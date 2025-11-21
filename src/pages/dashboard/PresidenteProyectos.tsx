@@ -188,15 +188,6 @@ export const PresidenteProyectos = () => {
   const formatDate = (iso?: string) =>
     iso ? new Date(iso).toLocaleDateString() : "-";
 
-  const formatDateRange = (start?: string, end?: string) => {
-    const startText = start ? formatDate(start) : null;
-    const endText = end ? formatDate(end) : null;
-    if (startText && endText) {
-      return startText === endText ? startText : `${startText} al ${endText}`;
-    }
-    return startText ?? endText ?? "-";
-  };
-
   const openModal = () => {
     setFormError(null);
     reset({
@@ -822,6 +813,7 @@ export const PresidenteProyectos = () => {
                     const estado = item.estado?.toUpperCase() ?? "";
                     const isPending = estado === "PENDIENTE";
                     const isAccepted = estado.startsWith("ACEPT");
+                    const isRejected = estado.startsWith("RECHAZ");
                     const projectStart = selectedProject?.fechaInicioProyecto
                       ? new Date(selectedProject.fechaInicioProyecto)
                       : null;
@@ -852,7 +844,7 @@ export const PresidenteProyectos = () => {
                         </Table.Cell>
                         <Table.Cell className="!px-5 !py-3 text-center">
                           <div className="flex flex-wrap items-center justify-center gap-2">
-                            {isPending && (
+                            {(isPending || isRejected) && (
                               <Button
                                 size="xs"
                                 color="success"
@@ -863,31 +855,31 @@ export const PresidenteProyectos = () => {
                                   setAcceptingInscriptionId(item.id);
                                   try {
                                     await aceptarInscripcionProyecto(selectedProject.id, item.id);
-                                  await Swal.fire({
-                                    title: "Inscripción aceptada",
-                                    text: "El socio ha sido aceptado en el proyecto.",
-                                    icon: "success",
-                                    confirmButtonColor: "#1ea896",
-                                  });
-                                  loadInscriptions();
-                                } catch (err) {
-                                  console.error("No se pudo aceptar la inscripción", err);
-                                  const message = getApiErrorMessage(
-                                    err,
-                                    "No pudimos aceptar la inscripción. Intenta nuevamente.",
-                                  );
-                                  await Swal.fire({
-                                    title: "Error",
-                                    text: message,
-                                    icon: "error",
-                                    confirmButtonColor: "#1ea896",
-                                  });
-                                } finally {
-                                  setAcceptingInscriptionId(null);
-                                }
-                              }}
-                            >
-                              {acceptingInscriptionId === item.id ? "Aceptando..." : "Aceptar"}
+                                    await Swal.fire({
+                                      title: "Inscripción aceptada",
+                                      text: "El socio ha sido aceptado en el proyecto.",
+                                      icon: "success",
+                                      confirmButtonColor: "#1ea896",
+                                    });
+                                    loadInscriptions();
+                                  } catch (err) {
+                                    console.error("No se pudo aceptar la inscripción", err);
+                                    const message = getApiErrorMessage(
+                                      err,
+                                      "No pudimos aceptar la inscripción. Intenta nuevamente.",
+                                    );
+                                    await Swal.fire({
+                                      title: "Error",
+                                      text: message,
+                                      icon: "error",
+                                      confirmButtonColor: "#1ea896",
+                                    });
+                                  } finally {
+                                    setAcceptingInscriptionId(null);
+                                  }
+                                }}
+                              >
+                                {acceptingInscriptionId === item.id ? "Aceptando..." : "Aceptar"}
                               </Button>
                             )}
                             {(isPending || isAccepted) && (
