@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ComponentProps } from "react";
 import {
   Alert,
+  Badge,
   Button,
   Modal,
   Pagination,
@@ -18,11 +19,14 @@ import {
   createProyecto,
   updateProyecto,
   fetchProyectoInscripciones,
+  aceptarInscripcionProyecto,
+  rechazarInscripcionProyecto,
   type Proyecto,
   type CreateProyectoPayload,
   type UpdateProyectoPayload,
   type ConvocatoriaInscripcion,
 } from "../../api/convocatorias";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 
 const estadoProyectoStyles: Record<
   string,
@@ -59,11 +63,20 @@ const getEstadoProyectoDisplay = (estado?: string, fallback?: string) => {
 
 const EstadoBadge = ({ estado, fallback }: { estado?: string; fallback?: string }) => {
   const { label, accentClass } = getEstadoProyectoDisplay(estado, fallback);
+  const color: ComponentProps<typeof Badge>["color"] =
+    accentClass.includes("emerald") || accentClass.includes("primary")
+      ? "success"
+      : accentClass.includes("sky")
+        ? "info"
+        : accentClass.includes("purple")
+          ? "purple"
+          : accentClass.includes("rose")
+            ? "failure"
+            : "gray";
   return (
-    <span className="inline-flex items-center rounded-full border border-border-subtle bg-white/60 px-3 py-1 text-xs font-medium text-text-secondary shadow-sm">
-      <span className={`mr-2 h-2.5 w-2.5 rounded-full ${accentClass}`} />
+    <Badge color={color} className="rounded-base px-3 py-1 text-xs font-semibold uppercase">
       {label}
-    </span>
+    </Badge>
   );
 };
 
@@ -92,6 +105,10 @@ export const PresidenteProyectos = () => {
   const [inscriptionsTotal, setInscriptionsTotal] = useState(0);
   const [inscriptionsLoading, setInscriptionsLoading] = useState(false);
   const [inscriptionsError, setInscriptionsError] = useState<string | null>(null);
+  const [acceptingInscriptionId, setAcceptingInscriptionId] = useState<number | null>(null);
+  const [rejectingInscriptionId, setRejectingInscriptionId] = useState<number | null>(null);
+  const [inscriptionsSearch, setInscriptionsSearch] = useState("");
+  const [inscriptionsStatusFilter, setInscriptionsStatusFilter] = useState<"TODAS" | "PENDIENTE" | "ACEPTADA">("TODAS");
 
   const {
     register,
@@ -345,6 +362,22 @@ export const PresidenteProyectos = () => {
     loadInscriptions();
   }, [loadInscriptions]);
 
+  const filteredInscriptions = useMemo(() => {
+    const term = inscriptionsSearch.trim().toLowerCase();
+    return inscriptions.filter((item) => {
+      const matchesSearch =
+        term.length === 0 ||
+        item.usuarioNombre.toLowerCase().includes(term) ||
+        item.usuarioCorreo.toLowerCase().includes(term);
+      const status = (item.estado ?? "").toUpperCase();
+      const matchesStatus =
+        inscriptionsStatusFilter === "TODAS" ||
+        (inscriptionsStatusFilter === "PENDIENTE" && status === "PENDIENTE") ||
+        (inscriptionsStatusFilter === "ACEPTADA" && status.startsWith("ACEPT"));
+      return matchesSearch && matchesStatus;
+    });
+  }, [inscriptions, inscriptionsSearch, inscriptionsStatusFilter]);
+
   return (
     <div className="space-y-6">
       <WelcomePanel
@@ -413,84 +446,76 @@ export const PresidenteProyectos = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto rounded-2xl border border-border-subtle bg-white">
+            <div className="overflow-x-auto rounded-2xl border border-border-subtle">
               <Table>
-                <Table.Head className="bg-white/80 text-[0.7rem] font-semibold uppercase tracking-wide text-text-secondary">
-                  <Table.HeadCell className="!bg-transparent !py-3">Proyecto</Table.HeadCell>
-                  <Table.HeadCell className="!bg-transparent !py-3 text-center">Estado</Table.HeadCell>
-                  <Table.HeadCell className="!bg-transparent !py-3">Postulación</Table.HeadCell>
-                  <Table.HeadCell className="!bg-transparent !py-3 text-center">Cupo</Table.HeadCell>
-                  <Table.HeadCell className="!bg-transparent !py-3 text-center">Inscritos</Table.HeadCell>
-                  <Table.HeadCell className="!bg-transparent !py-3 text-center">
-                    Acciones
-                  </Table.HeadCell>
+                <Table.Head className="bg-bg-soft text-xs uppercase text-text-secondary">
+                  <Table.HeadCell>Título</Table.HeadCell>
+                  <Table.HeadCell>Estado</Table.HeadCell>
+                  <Table.HeadCell>Inicio postul.</Table.HeadCell>
+                  <Table.HeadCell>Cierre</Table.HeadCell>
+                  <Table.HeadCell>Cupo</Table.HeadCell>
+                  <Table.HeadCell>Acciones</Table.HeadCell>
                 </Table.Head>
-                <Table.Body className="divide-y divide-border-subtle/70">
-                  {projects.map((project) => {
-                    return (
-                      <Table.Row
-                        key={project.id}
-                        className="bg-transparent text-sm transition hover:bg-bg-soft/50"
-                      >
-                        <Table.Cell className="align-top text-text-secondary">
-                          <div className="space-y-1">
-                            <p className="text-base font-semibold text-text-primary">
-                              {project.titulo}
-                            </p>
-                            <p className="text-xs uppercase tracking-wide text-text-secondary opacity-80">
-                              {project.clubNombre}
-                            </p>
-                            <p className="text-sm">
-                              {project.descripcion || "Sin descripción disponible"}
-                            </p>
-                          </div>
-                          <div className="mt-3 text-xs text-text-secondary">
-                            <span className="font-semibold text-text-primary">Requisitos:</span>{" "}
-                            {project.requisitos || "Sin requisitos definidos"}
-                          </div>
-                        </Table.Cell>
-                        <Table.Cell className="align-middle text-center">
-                          <EstadoBadge estado={project.estadoProyecto} fallback={project.estado} />
-                        </Table.Cell>
-                        <Table.Cell className="align-middle text-xs text-text-secondary">
-                          <p className="text-[0.65rem] uppercase tracking-wide text-text-secondary opacity-70">
-                            Postulación
+                <Table.Body className="divide-y">
+                  {projects.map((project) => (
+                    <Table.Row
+                      key={project.id}
+                      className="bg-white text-sm transition hover:bg-bg-soft/50"
+                    >
+                      <Table.Cell className="font-semibold text-text-primary">
+                        <div className="space-y-1">
+                          <p className="text-base">{project.titulo}</p>
+                          <p className="text-xs uppercase tracking-wide text-text-secondary opacity-80">
+                            {project.clubNombre}
                           </p>
-                          <p className="text-sm font-medium text-text-primary">
-                            {formatDateRange(project.fechaInicioPostulacion, project.fechaFinPostulacion)}
+                          <p className="text-sm font-normal text-text-secondary">
+                            {project.descripcion || "Sin descripción disponible"}
                           </p>
-                        </Table.Cell>
-                        <Table.Cell className="align-middle text-center text-sm font-semibold text-text-primary">
-                          {Number.isFinite(project.cupoMaximo) ? project.cupoMaximo : "-"}
-                        </Table.Cell>
-                        <Table.Cell className="align-middle text-center text-sm font-semibold text-text-primary">
-                          {project.inscritos ?? 0}
-                        </Table.Cell>
-                        <Table.Cell className="align-middle">
-                          <div className="mx-auto flex w-40 flex-col items-stretch gap-2">
-                            <Button
-                              size="xs"
-                              color="light"
-                              type="button"
-                              className="bg-primary px-4 text-xs font-semibold text-white shadow-soft hover:!bg-primary-dark focus:!ring-primary/40"
-                              onClick={() => openInscriptionsModal(project)}
-                            >
-                              Ver inscripciones
-                            </Button>
-                            <Button
-                              size="xs"
-                              color="light"
-                              type="button"
-                              className="bg-purple-500 px-4 text-xs font-semibold text-white shadow-soft hover:!bg-purple-600 focus:!ring-purple-400"
-                              onClick={() => openEditModal(project)}
-                            >
-                              Editar proyecto
-                            </Button>
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                    );
-                  })}
+                        </div>
+                        <div className="mt-2 text-xs font-normal text-text-secondary">
+                          <span className="font-semibold text-text-primary">Requisitos:</span>{" "}
+                          {project.requisitos || "Sin requisitos definidos"}
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <EstadoBadge estado={project.estadoProyecto} fallback={project.estado} />
+                      </Table.Cell>
+                      <Table.Cell className="text-sm font-medium text-text-primary">
+                        {project.fechaInicioPostulacion
+                          ? formatDate(project.fechaInicioPostulacion)
+                          : "-"}
+                      </Table.Cell>
+                      <Table.Cell className="text-sm font-medium text-text-primary">
+                        {project.fechaFinPostulacion ? formatDate(project.fechaFinPostulacion) : "-"}
+                      </Table.Cell>
+                      <Table.Cell className="text-sm font-semibold text-text-primary">
+                        {Number.isFinite(project.cupoMaximo) ? project.cupoMaximo : "-"}
+                      </Table.Cell>
+                      <Table.Cell className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            size="xs"
+                            color="light"
+                            type="button"
+                            className="rounded-base bg-primary px-3 py-1 text-xs font-semibold text-white transition hover:!bg-primary-dark focus:!ring-primary/40"
+                            onClick={() => openInscriptionsModal(project)}
+                          >
+                            Ver inscripciones
+                          </Button>
+                          <Button
+                            size="xs"
+                            color="light"
+                            type="button"
+                            className="rounded-base px-3 py-1 text-xs font-semibold text-white transition hover:!bg-secondary-dark focus:!ring-secondary/40"
+                            style={{ backgroundColor: "var(--secondary)" }}
+                            onClick={() => openEditModal(project)}
+                          >
+                            Editar proyecto
+                          </Button>
+                        </div>
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
                 </Table.Body>
               </Table>
             </div>
@@ -735,11 +760,38 @@ export const PresidenteProyectos = () => {
           </Modal.Footer>
         </form>
       </Modal>
-      <Modal show={inscriptionsOpen} onClose={closeInscriptionsModal} size="2xl">
-        <Modal.Header>
+      <Modal
+        show={inscriptionsOpen}
+        onClose={closeInscriptionsModal}
+        size="6xl"
+      >
+        <Modal.Header className="text-lg font-semibold">
           Inscripciones {selectedProject ? `- ${selectedProject.titulo}` : ""}
         </Modal.Header>
-        <Modal.Body className="space-y-4">
+        <Modal.Body className="space-y-5 text-sm sm:text-base">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex w-full flex-col gap-1">
+              <label className="text-sm font-semibold text-text-primary">Buscar por nombre o correo</label>
+              <TextInput
+                placeholder="Ej: Ana Perez"
+                value={inscriptionsSearch}
+                onChange={(event) => setInscriptionsSearch(event.target.value)}
+              />
+            </div>
+            <div className="flex w-full flex-col gap-1 sm:max-w-xs">
+              <label className="text-sm font-semibold text-text-primary">Estado</label>
+              <Select
+                value={inscriptionsStatusFilter}
+                onChange={(event) =>
+                  setInscriptionsStatusFilter(event.target.value as typeof inscriptionsStatusFilter)
+                }
+              >
+                <option value="TODAS">Todas</option>
+                <option value="PENDIENTE">Pendientes</option>
+                <option value="ACEPTADA">Aceptadas</option>
+              </Select>
+            </div>
+          </div>
           {inscriptionsError && (
             <Alert color="failure" onDismiss={() => setInscriptionsError(null)}>
               {inscriptionsError}
@@ -757,35 +809,146 @@ export const PresidenteProyectos = () => {
           ) : (
             <div className="overflow-x-auto rounded-xl border border-border-subtle">
               <Table>
-                <Table.Head className="bg-bg-soft text-xs uppercase text-text-secondary">
-                  <Table.HeadCell>Nombre</Table.HeadCell>
-                  <Table.HeadCell>Correo</Table.HeadCell>
-                  <Table.HeadCell>Estado</Table.HeadCell>
-                  <Table.HeadCell>Tipo</Table.HeadCell>
-                  <Table.HeadCell>Fecha</Table.HeadCell>
+                <Table.Head className="bg-bg-soft text-sm uppercase text-text-secondary">
+                  <Table.HeadCell className="!px-5 !py-3">Nombre</Table.HeadCell>
+                  <Table.HeadCell className="!px-5 !py-3">Correo</Table.HeadCell>
+                  <Table.HeadCell className="!px-5 !py-3">Tipo</Table.HeadCell>
+                  <Table.HeadCell className="!px-5 !py-3">Estado</Table.HeadCell>
+                  <Table.HeadCell className="!px-5 !py-3">Fecha registro</Table.HeadCell>
+                  <Table.HeadCell className="!px-5 !py-3 text-center">Acciones</Table.HeadCell>
                 </Table.Head>
                 <Table.Body className="divide-y">
-                  {inscriptions.map((item) => (
-                    <Table.Row key={item.id} className="bg-white text-sm">
-                      <Table.Cell className="font-semibold text-text-primary">
-                        {item.usuarioNombre}
-                      </Table.Cell>
-                      <Table.Cell className="text-text-secondary">{item.usuarioCorreo}</Table.Cell>
-                      <Table.Cell className="text-text-secondary">{item.estado}</Table.Cell>
-                      <Table.Cell className="text-text-secondary">{item.tipo}</Table.Cell>
-                      <Table.Cell className="text-text-secondary">
-                        {item.fechaRegistro ? formatDate(item.fechaRegistro) : "-"}
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
+                  {filteredInscriptions.map((item) => {
+                    const estado = item.estado?.toUpperCase() ?? "";
+                    const isPending = estado === "PENDIENTE";
+                    const isAccepted = estado.startsWith("ACEPT");
+                    const projectStart = selectedProject?.fechaInicioProyecto
+                      ? new Date(selectedProject.fechaInicioProyecto)
+                      : null;
+                    const today = new Date();
+                    const actionsDisabled = projectStart ? projectStart <= today : false;
+                    const badgeColor = isAccepted ? "success" : isPending ? "warning" : "gray";
+                    return (
+                      <Table.Row key={item.id} className="bg-white text-sm sm:text-base">
+                        <Table.Cell className="!px-5 !py-3 font-semibold text-text-primary">
+                          {item.usuarioNombre}
+                        </Table.Cell>
+                        <Table.Cell className="!px-5 !py-3 text-text-secondary">
+                          {item.usuarioCorreo}
+                        </Table.Cell>
+                        <Table.Cell className="!px-5 !py-3 text-text-secondary">
+                          {item.tipo}
+                        </Table.Cell>
+                        <Table.Cell className="!px-5 !py-3 text-text-secondary">
+                          <Badge
+                            color={badgeColor}
+                            className="rounded-base px-3 py-1 text-xs font-semibold"
+                          >
+                            {item.estado}
+                          </Badge>
+                        </Table.Cell>
+                        <Table.Cell className="!px-5 !py-3 text-text-secondary">
+                          {item.fechaRegistro ? formatDate(item.fechaRegistro) : "-"}
+                        </Table.Cell>
+                        <Table.Cell className="!px-5 !py-3 text-center">
+                          <div className="flex flex-wrap items-center justify-center gap-2">
+                            {isPending && (
+                              <Button
+                                size="xs"
+                                color="success"
+                                className="px-3 text-xs font-semibold text-white"
+                                disabled={acceptingInscriptionId === item.id || actionsDisabled}
+                                onClick={async () => {
+                                  if (!selectedProject) return;
+                                  setAcceptingInscriptionId(item.id);
+                                  try {
+                                    await aceptarInscripcionProyecto(selectedProject.id, item.id);
+                                  await Swal.fire({
+                                    title: "Inscripción aceptada",
+                                    text: "El socio ha sido aceptado en el proyecto.",
+                                    icon: "success",
+                                    confirmButtonColor: "#1ea896",
+                                  });
+                                  loadInscriptions();
+                                } catch (err) {
+                                  console.error("No se pudo aceptar la inscripción", err);
+                                  const message = getApiErrorMessage(
+                                    err,
+                                    "No pudimos aceptar la inscripción. Intenta nuevamente.",
+                                  );
+                                  await Swal.fire({
+                                    title: "Error",
+                                    text: message,
+                                    icon: "error",
+                                    confirmButtonColor: "#1ea896",
+                                  });
+                                } finally {
+                                  setAcceptingInscriptionId(null);
+                                }
+                              }}
+                            >
+                              {acceptingInscriptionId === item.id ? "Aceptando..." : "Aceptar"}
+                              </Button>
+                            )}
+                            {(isPending || isAccepted) && (
+                              <Button
+                                size="xs"
+                                color="failure"
+                                className="px-3 text-xs font-semibold text-white"
+                                disabled={rejectingInscriptionId === item.id || actionsDisabled}
+                                onClick={async () => {
+                                  if (!selectedProject) return;
+                                  setRejectingInscriptionId(item.id);
+                                  try {
+                                    await rechazarInscripcionProyecto(selectedProject.id, item.id);
+                                  await Swal.fire({
+                                    title: "Inscripción rechazada",
+                                    text: "El socio fue rechazado para este proyecto.",
+                                    icon: "success",
+                                    confirmButtonColor: "#1ea896",
+                                  });
+                                  loadInscriptions();
+                                } catch (err) {
+                                  console.error("No se pudo rechazar la inscripción", err);
+                                  const message = getApiErrorMessage(
+                                    err,
+                                    "No pudimos rechazar la inscripción. Intenta nuevamente.",
+                                  );
+                                  await Swal.fire({
+                                    title: "Error",
+                                    text: message,
+                                    icon: "error",
+                                    confirmButtonColor: "#1ea896",
+                                  });
+                                } finally {
+                                  setRejectingInscriptionId(null);
+                                }
+                              }}
+                            >
+                                {rejectingInscriptionId === item.id ? "Rechazando..." : "Rechazar"}
+                              </Button>
+                            )}
+                            {!isPending && !isAccepted && (
+                              <span className="text-text-secondary">-</span>
+                            )}
+                          </div>
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
                 </Table.Body>
               </Table>
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer className="flex flex-col gap-3 border-t border-border-subtle px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-xs text-text-secondary">
-            Mostrando {inscriptions.length} de {inscriptionsTotal} · Página {inscriptionsPage} de {inscriptionsTotalPages}
+        <Modal.Footer className="flex flex-col gap-3 border-t border-border-subtle px-6 py-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <Button color="light" onClick={closeInscriptionsModal}>
+              Cerrar
+            </Button>
+            <span className="text-text-secondary">
+              Mostrando {filteredInscriptions.length} de {inscriptionsTotal}
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <Select

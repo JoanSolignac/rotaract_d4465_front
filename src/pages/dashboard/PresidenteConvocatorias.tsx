@@ -25,6 +25,8 @@ import {
   type CreateConvocatoriaPayload,
   type ConvocatoriaInscripcion,
 } from "../../api/convocatorias";
+import { convertToISODate } from "../../utils/dateFormat";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 
 const ACCEPTED_STATES = new Set(["APROBADO", "APROBADA", "ACEPTADO", "ACEPTADA"]);
 
@@ -262,9 +264,13 @@ export const PresidenteConvocatorias = () => {
       loadInscripciones();
     } catch (err) {
       console.error("No se pudo actualizar la inscripción", err);
+      const message = getApiErrorMessage(
+        err,
+        "No pudimos completar la acción. Intenta nuevamente.",
+      );
       await Swal.fire({
         title: "Error",
-        text: "No pudimos completar la acción. Intenta nuevamente.",
+        text: message,
         icon: "error",
         confirmButtonColor: "#1ea896",
       });

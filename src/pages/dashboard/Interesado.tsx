@@ -8,6 +8,7 @@ import {
   inscribirseConvocatoria,
   type Convocatoria,
 } from "../../api/convocatorias";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 
 export const Interesado = () => {
   const { user } = useAuth();
@@ -154,24 +155,28 @@ export const Interesado = () => {
                         disabled={applyingId === convocatoria.id}
                         onClick={async () => {
                           setApplyingId(convocatoria.id);
-                          try {
-                            await inscribirseConvocatoria(convocatoria.id);
-                            await Swal.fire({
-                              title: "Postulación enviada",
-                              text: "Tu interés ha sido registrado. Te contactaremos pronto.",
+                        try {
+                          await inscribirseConvocatoria(convocatoria.id);
+                          await Swal.fire({
+                            title: "Postulación enviada",
+                            text: "Tu interés ha sido registrado. Te contactaremos pronto.",
                               icon: "success",
                               confirmButtonColor: "#1ea896",
                             });
-                          } catch (err) {
-                            console.error("No se pudo inscribir a la convocatoria", err);
-                            await Swal.fire({
-                              title: "Error",
-                              text: "No pudimos registrar tu postulación. Intenta nuevamente.",
-                              icon: "error",
-                              confirmButtonColor: "#1ea896",
-                            });
-                          } finally {
-                            setApplyingId(null);
+                        } catch (err) {
+                          console.error("No se pudo inscribir a la convocatoria", err);
+                          const message = getApiErrorMessage(
+                            err,
+                            "No pudimos registrar tu postulación. Intenta nuevamente.",
+                          );
+                          await Swal.fire({
+                            title: "Error",
+                            text: message,
+                            icon: "error",
+                            confirmButtonColor: "#1ea896",
+                          });
+                        } finally {
+                          setApplyingId(null);
                           }
                         }}
                       >

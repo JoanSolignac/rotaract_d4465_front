@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type ComponentProps } from "react";
 import { Badge, Button, Card, Pagination, Select } from "flowbite-react";
+import Swal from "sweetalert2";
 import { useAuth } from "../../hooks/useAuth";
 import { WelcomePanel } from "./components/WelcomePanel";
-import { fetchClubProjects, type Proyecto } from "../../api/convocatorias";
+import { fetchClubProjects, inscribirseProyecto, type Proyecto } from "../../api/convocatorias";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 
 const formatDate = (iso?: string) => (iso ? new Date(iso).toLocaleDateString() : "-");
 
@@ -52,6 +54,7 @@ export const Socio = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [applyingId, setApplyingId] = useState<number | null>(null);
 
   const loadProjects = useCallback(async () => {
     setLoading(true);
@@ -188,8 +191,36 @@ export const Socio = () => {
                       color="light"
                       className="bg-primary px-4 text-xs font-semibold text-white shadow-soft hover:!bg-primary-dark focus:!ring-primary/40"
                       type="button"
+                      disabled={applyingId === project.id}
+                      onClick={async () => {
+                        setApplyingId(project.id);
+                        try {
+                          await inscribirseProyecto(project.id);
+                          await Swal.fire({
+                            title: "Postulación enviada",
+                            text: "Tu postulación fue registrada con éxito.",
+                            icon: "success",
+                            confirmButtonColor: "#1ea896",
+                          });
+                          await loadProjects();
+                        } catch (err) {
+                          console.error("No se pudo inscribir al proyecto", err);
+                          const message = getApiErrorMessage(
+                            err,
+                            "No pudimos registrar tu postulación. Intenta nuevamente.",
+                          );
+                          await Swal.fire({
+                            title: "Error",
+                            text: message,
+                            icon: "error",
+                            confirmButtonColor: "#1ea896",
+                          });
+                        } finally {
+                          setApplyingId(null);
+                        }
+                      }}
                     >
-                      Postular
+                      {applyingId === project.id ? "Postulando..." : "Postular"}
                     </Button>
                   </div>
                 </Card>

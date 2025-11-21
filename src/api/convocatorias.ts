@@ -213,6 +213,25 @@ export const updateProyecto = async (proyectoId: number, payload: UpdateProyecto
   return response.data;
 };
 
+export const aceptarInscripcionProyecto = async (proyectoId: number, inscripcionId: number) => {
+  const response = await api.post(
+    `/proyectos/${proyectoId}/inscripciones/${inscripcionId}/aceptar`,
+  );
+  return response.data;
+};
+
+export const inscribirseProyecto = async (proyectoId: number) => {
+  const response = await api.post(`/proyectos/${proyectoId}/inscribirse`);
+  return response.data;
+};
+
+export const rechazarInscripcionProyecto = async (proyectoId: number, inscripcionId: number) => {
+  const response = await api.post(
+    `/proyectos/${proyectoId}/inscripciones/${inscripcionId}/rechazar`,
+  );
+  return response.data;
+};
+
 export const fetchProyectoInscripciones = async (
   proyectoId: number,
   params?: FetchPaginatedParams,
