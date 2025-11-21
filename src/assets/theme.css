@@ -1,24 +1,24 @@
 :root {
-  --primary: #c51162;
-  --primary-dark: #9d0f53;
-  --secondary: #f9b44e;
-  --secondary-dark: #d68c1c;
-  --accent: #7a33e4;
+  --primary: #ff2d8a;
+  --primary-dark: #d61f6d;
+  --secondary: #f2c46d;
+  --secondary-dark: #d6a94f;
+  --accent: #9159ff;
 
-  --text-primary: #1a0f1c;
-  --text-secondary: #4f2d4a;
-  --text-muted: #7d5574;
+  --text-primary: #f8e9f8;
+  --text-secondary: #d6bfe0;
+  --text-muted: #9b86a8;
 
-  --bg-surface: #ffffff;
-  --bg-soft: #fff4f9;
-  --bg-panel: #fff7fb;
+  --bg-surface: #0d0716;
+  --bg-soft: #140c20;
+  --bg-panel: #1a102b;
 
-  --border-subtle: #eecfe1;
-  --border-strong: #dcb1cf;
+  --border-subtle: #2f1e45;
+  --border-strong: #5c3f7b;
 
-  --success: #3cbf9a;
-  --warning: #f6b044;
-  --danger: #eb4b4b;
+  --success: #38d6a2;
+  --warning: #f6c45c;
+  --danger: #ff6b6b;
 }
 
 body {
@@ -33,5 +33,5 @@ body {
 .material-surface {
   background: var(--bg-panel);
   border-radius: 1rem;
-  box-shadow: 0 20px 60px rgba(5, 9, 18, 0.45);
+  box-shadow: 0 20px 60px rgba(3, 2, 8, 0.65);
 }
