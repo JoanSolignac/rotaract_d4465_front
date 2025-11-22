@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap");
 @import "./assets/theme.css";
 
 @tailwind base;
@@ -65,5 +65,5 @@ button:disabled,
 }
 
 .page-container {
-  @apply min-h-screen bg-gradient-to-br from-bg-soft via-bg-soft to-bg-surface px-4 py-10;
+  @apply min-h-screen px-4 py-10;
 }

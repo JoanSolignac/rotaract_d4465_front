@@ -31,7 +31,7 @@ const config: Config = {
         danger: 'var(--danger)',
       },
       fontFamily: {
-        sans: ['"Inter"', 'system-ui', 'sans-serif'],
+        sans: ['"Manrope"', '"Poppins"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         card: '0 18px 40px rgba(7, 48, 37, 0.12)',
